@@ -1,0 +1,4 @@
+autoDiscovery:
+  clusterName: <CLUSTER_NAME>
+awsRegion: <AWS_DEFAULT_REGION>
+cloudProvider: aws

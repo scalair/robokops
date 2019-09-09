@@ -1,0 +1,9 @@
+master:
+  updateStrategy:
+    type: RollingUpdate
+data:
+  updateStrategy:
+    type: RollingUpdate
+  persistence:
+    size: 30Gi
+    storageClass: ssd

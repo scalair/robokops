@@ -1,0 +1,3 @@
+persistence:
+  storageClass: ssd
+  size: 10Gi

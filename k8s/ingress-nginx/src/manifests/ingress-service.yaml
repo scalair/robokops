@@ -1,0 +1,20 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: ingress-nginx
+  namespace: kube-system
+  labels:
+    app: ingress-nginx
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "120"
+spec:
+  type: LoadBalancer
+  selector:
+    app: ingress-nginx
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+    - name: https
+      port: 443
+      targetPort: http

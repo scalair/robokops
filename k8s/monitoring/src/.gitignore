@@ -1,0 +1,3 @@
+manifests/*
+monitoring.jsonnet
+auth

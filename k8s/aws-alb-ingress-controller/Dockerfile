@@ -1,0 +1,5 @@
+FROM scalair/robokops-base:0.1.0
+COPY src /home/builder/src
+RUN sudo chown -R builder:builder /home/builder
+RUN echo 'aws-alb-ingress-controller' | sudo tee /name
+VOLUME /conf
