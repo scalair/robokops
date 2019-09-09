@@ -1,7 +1,7 @@
 # Getting started
-This example create a Kubernetes cluster on AWS using EKS with monitoring, log collector, administration dashboard and autoscaling.
+This example creates a Kubernetes cluster on AWS using EKS with monitoring, log collector, administration dashboard and autoscaling.
 
-## Prerequise
+## Prerequisites
 * Install Robokops with [go](https://golang.org/doc/install): `go get -u github.com/scalair/robokops`
 * You must have an AWS account to run that example
 * Create a key-pair on AWS with the same value you will set on `ENV_NAME` below.
@@ -34,7 +34,7 @@ Create the cluster and deploy the features (this will take around 20min):
 robokops --config example/ --terraform apply --action deploy --target cluster-init --target cluster-autoscaler --target dashboard --target monitoring --target elastic-stack
 ```
 If something goes wrong during creation or deployment, you can rerun the same command (which is idempotent).
-For instance, creating the elastic-stack will takes time and sometimes it can timeout (still the stack could be properly deployed). If it happens and not everything has been properly deployed, try to rerun that command. 
+For instance, creating the elastic-stack will take time and sometimes it can timeout (still the stack could be properly deployed). If it happens and not everything has been properly deployed, try to rerun that command. 
 
 ## Access it
 Authenticate to the cluster:
