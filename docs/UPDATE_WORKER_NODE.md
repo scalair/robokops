@@ -20,8 +20,6 @@ K8S_VERSION=1.11.5
 nodes=$(kubectl get nodes -o jsonpath="{.items[?(@.status.nodeInfo.kubeletVersion==\"v$K8S_VERSION\")].metadata.name}")
 for node in ${nodes[@]}; do echo "Draining $node" ; kubectl drain $node --ignore-daemonsets --delete-local-data ; done
 
-# Delete the nodes with the previous image
-
 # Scale back up the cluster-autoscaler. It will then remove the unused nodes slowly
 kubectl -n kube-system scale deployment.apps/cluster-autoscaler-aws-cluster-autoscaler --replicas=1
 ```
