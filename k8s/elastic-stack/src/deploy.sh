@@ -19,4 +19,4 @@ if [ "${INSTALL_KIBANA}" != "false" ]; then
 	helm upgrade --install --force --namespace elastic-stack -f kibana/values.yaml kibana stable/kibana --version 3.2.3 --wait
 fi
 # Fluentd
-helm upgrade --install --force --namespace elastic-stack -f fluentd/values.yaml fluentd stable/fluentd --version 2.0.0 --wait
+helm upgrade --install --force --namespace elastic-stack -f fluentd/values.yaml fluentd stable/fluentd --version 2.1.3 --wait
