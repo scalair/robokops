@@ -170,6 +170,7 @@ func initialise() {
 		"aws-alb-ingress-controller",
 		"gitlabci",
 		"dashboard",
+		"velero",
 	}
 
 	// Catch sigterm signal
