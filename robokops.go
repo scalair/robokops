@@ -171,6 +171,7 @@ func initialise() {
 		"gitlabci",
 		"dashboard",
 		"velero",
+		"kubewatch",
 	}
 
 	// Catch sigterm signal
