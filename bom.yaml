@@ -24,6 +24,9 @@ features:
   - name: ingress-nginx
     image: scalair/robokops-ingress-nginx
     version: 0.1.0
+  - name: jenkins
+    image: scalair/robokops-jenkins
+    version: 0.1.0
   - name: kubewatch
     image: scalair/robokops-kubewatch
     version: 0.1.0
