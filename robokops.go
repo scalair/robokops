@@ -172,6 +172,7 @@ func initialise() {
 		"dashboard",
 		"velero",
 		"kubewatch",
+		"jenkins",
 	}
 
 	// Catch sigterm signal
