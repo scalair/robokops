@@ -329,7 +329,15 @@ func runContainer(feature string, action string, binds []string) {
 	if err != nil {
 		ppError("Failed to show logs of container: "+containerID, err)
 	}
-	defer out.Close()
+	defer func() {
+		_ = out.Close()
+		// Remove the ended container if not in dev mode
+		if *dev == false {
+			if err := dockerCli.ContainerRemove(ctx, containerID, types.ContainerRemoveOptions{}); err != nil {
+				ppError(fmt.Sprintf("Failed to remove container: %s", containerID), err)
+			}
+		}
+	}()
 	stdcopy.StdCopy(os.Stdout, os.Stderr, out)
 }
 
