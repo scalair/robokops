@@ -1,4 +1,4 @@
-version: 0.5.1
+version: 0.5.2
 features:
   - name: aws-alb-ingress-controller
     image: scalair/robokops-aws-alb-ingress-controller
