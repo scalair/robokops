@@ -4,6 +4,10 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 For details about the features changes, you can look at their CHANGELOG.
 
+## 0.5.2 - 2019-10-11
+### Changed
+- Cluster-init release 0.1.1
+
 ## 0.5.1 - 2019-10-02
 ### Fixed
 - [PR12](https://github.com/scalair/robokops/pull/12) Remove ended container from docker host
