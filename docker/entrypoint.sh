@@ -25,7 +25,7 @@ if [ -d /conf/${FEATURE_NAME} ]; then
 		fi
 		else
 			echo -e "Copying:\t ${FEATURE_NAME}/${MANIFEST} into /home/builder/src/${MANIFEST}"
-			cp -i /tmp/${FEATURE_NAME}/${MANIFEST} /home/builder/src/${MANIFEST}
+			cp -r /tmp/${FEATURE_NAME}/${MANIFEST} /home/builder/src/${MANIFEST}
 		fi
 	done
 fi
