@@ -22,7 +22,6 @@ if [ -d /conf/${FEATURE_NAME} ]; then
 		if [ -f /home/builder/src/${MANIFEST} ]; then
 			echo -e "Merging:\t ${FEATURE_NAME}/${MANIFEST} with /home/builder/src/${MANIFEST}"
 			yq m -x -i /home/builder/src/${MANIFEST} /tmp/${FEATURE_NAME}/${MANIFEST}
-		fi
 		else
 			echo -e "Copying:\t ${FEATURE_NAME}/${MANIFEST} into /home/builder/src/${MANIFEST}"
 			cp -r /tmp/${FEATURE_NAME}/${MANIFEST} /home/builder/src/${MANIFEST}
