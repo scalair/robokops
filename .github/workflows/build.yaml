@@ -1,0 +1,68 @@
+name: build
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  base:
+    name: Build scalair/robokops-base
+    runs-on: ubuntu-18.04
+    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'base/')
+    steps:
+    - name: Checkout scalair/robokops
+      uses: actions/checkout@v1
+    - name: Parse source branch
+      id: ref
+      run: echo ::set-output name=feature_version::$(echo ${GITHUB_HEAD_REF} | awk -F '/' '{print $2}')
+    - name: Publish to Docker Hub
+      if: success()
+      uses: elgohr/Publish-Docker-Github-Action@2.6
+      with:
+        name: scalair/robokops-base:${{ steps.ref.outputs.feature_version }}
+        workdir: docker
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+
+  terraform:
+    name: Build scalair/robokops-terraform
+    runs-on: ubuntu-18.04
+    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'terraform/')
+    steps:
+    - name: Checkout scalair/robokops
+      uses: actions/checkout@v1
+    - name: Parse source branch
+      id: ref
+      run: echo ::set-output name=feature_version::$(echo ${GITHUB_HEAD_REF} | awk -F '/' '{print $2}')
+    - name: Publish to Docker Hub
+      if: success()
+      uses: elgohr/Publish-Docker-Github-Action@2.6
+      with:
+        name: scalair/robokops-terraform:${{ steps.ref.outputs.feature_version }}
+        workdir: terraform
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+
+  feature:
+    name: Build robokops feature
+    runs-on: ubuntu-18.04
+    if: >
+      github.event.pull_request.merged == true &&
+      !startsWith(github.event.pull_request.head.ref, 'base/') &&
+      !startsWith(github.event.pull_request.head.ref, 'terraform/')
+    steps:
+    - name: Checkout scalair/robokops
+      uses: actions/checkout@v1
+    - name: Parse source branch
+      id: ref
+      run: |
+        echo ::set-output name=feature_name::$(echo ${GITHUB_HEAD_REF} | awk -F '/' '{print $1}')
+        echo ::set-output name=feature_version::$(echo ${GITHUB_HEAD_REF} | awk -F '/' '{print $2}')
+    - name: Publish to Docker Hub
+      if: success()
+      uses: elgohr/Publish-Docker-Github-Action@2.6
+      with:
+        name: scalair/robokops-${{ steps.ref.outputs.feature_name }}:${{ steps.ref.outputs.feature_version }}
+        workdir: k8s/${{ steps.ref.outputs.feature_name }}
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}

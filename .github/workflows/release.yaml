@@ -1,0 +1,25 @@
+---
+
+name: release
+
+on:
+  push:
+    tags:
+      - '*.*.*'
+
+jobs:
+  release:
+    name: Release Robokops
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout Robokops
+        uses: actions/checkout@v1
+      - name: Set up Go environment
+        uses: actions/setup-go@v1
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          version: v0.119.0
+          args: release
