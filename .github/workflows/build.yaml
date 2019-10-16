@@ -49,7 +49,10 @@ jobs:
     if: >
       github.event.pull_request.merged == true &&
       !startsWith(github.event.pull_request.head.ref, 'base/') &&
-      !startsWith(github.event.pull_request.head.ref, 'terraform/')
+      !startsWith(github.event.pull_request.head.ref, 'terraform/') &&
+      !startsWith(github.event.pull_request.head.ref, 'feature/') &&
+      !startsWith(github.event.pull_request.head.ref, 'release/') &&
+      !startsWith(github.event.pull_request.head.ref, 'bugfix/')
     steps:
     - name: Checkout scalair/robokops
       uses: actions/checkout@v1
