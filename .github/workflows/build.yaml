@@ -38,7 +38,7 @@ jobs:
       if: success()
       uses: elgohr/Publish-Docker-Github-Action@2.6
       with:
-        name: scalair/robokops-base:${{ steps.ref.outputs.feature_version }}
+        name: scalair/robokops-terraform:${{ steps.ref.outputs.feature_version }}
         workdir: terraform
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
