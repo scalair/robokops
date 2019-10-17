@@ -37,11 +37,11 @@ find terraform -name ".terragrunt-cache" -exec rm -f {} \;
 FILES=$(find . -type f)
 for file in ${FILES}; do
 	# We use `-i.bk` for this command to work on Linux and MacOS
-	sed -i.bk -e "s|AKIAJLWY7TR42BGIM76A|${AWS_ACCESS_KEY_ID}|g" ${file}
-	sed -i.bk -e "s|nVS1y3ziOX3q1LO64tARWqg1/DLaiA1R/P3XSgx0|${AWS_SECRET_ACCESS_KEY}|g" ${file}
-	sed -i.bk -e "s|eu-west-1|${AWS_DEFAULT_REGION}|g" ${file}
-	sed -i.bk -e "s|eks.dev.scalair.eu-west-1|${ENV_NAME}|g" ${file}
-	sed -i.bk -e "s|eks-dev-scalair-eu-west-1|${CLUSTER_NAME}|g" ${file}
+	sed -i.bk -e "s|<AWS_ACCESS_KEY_ID>|${AWS_ACCESS_KEY_ID}|g" ${file}
+	sed -i.bk -e "s|<AWS_SECRET_ACCESS_KEY>|${AWS_SECRET_ACCESS_KEY}|g" ${file}
+	sed -i.bk -e "s|<AWS_DEFAULT_REGION>|${AWS_DEFAULT_REGION}|g" ${file}
+	sed -i.bk -e "s|<ENV_NAME>|${ENV_NAME}|g" ${file}
+	sed -i.bk -e "s|<CLUSTER_NAME>|${CLUSTER_NAME}|g" ${file}
 done
 # Clean the .bk files created
 find . -name "*.bk" -exec rm -f {} \;
