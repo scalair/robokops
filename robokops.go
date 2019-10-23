@@ -168,6 +168,7 @@ func initialise() {
 		"external-dns",
 		"ingress-nginx",
 		"aws-alb-ingress-controller",
+		"aws-efs-csi-driver",
 		"gitlabci",
 		"dashboard",
 		"velero",
