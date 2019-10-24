@@ -1,0 +1,8 @@
+archive:
+  format: tar.gz
+  name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
+  files:
+    - bom.yaml
+    - CHANGELOG.md
+    - LICENCE
+    - Makefile

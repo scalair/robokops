@@ -4,6 +4,18 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 For details about the features changes, you can look at their CHANGELOG.
 
+## 0.7.0 - 2019-10-24
+### Changed
+- **WARNING** (breaking change): `bom.yaml` moved from `$GOPATH/src/github.com/scalair/robokops/bom.yaml` to `/etc/robokops/bom.yaml`
+- **WARNING**: binary moved from `$GOPATH/bin/robokops` to `/usr/local/bin/robokops`. You must remove the previous binary in order to use that version!
+- Installation process has evolved (moving from `go get` to a proper package installation). Installation via `go get` is no longer supported!
+
+### Fixed
+- robokops.go: Colors were not initialized soon enough
+
+### Added
+- robokops.go: Support for yellow color
+
 ## 0.6.1 - 2019-10-24
 ### Fixed
 -  Fix go-releaser with Github actions
