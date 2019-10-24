@@ -35,6 +35,7 @@ var robokopsVersion string
 var boldGreen *color.Color
 var boldRed *color.Color
 var boldWhite *color.Color
+var boldYellow *color.Color
 
 // Arguments
 var config *string
@@ -57,6 +58,12 @@ type Feature struct {
 }
 
 func main() {
+	// Define awesome colors
+	boldGreen = color.New(color.FgGreen, color.Bold)
+	boldWhite = color.New(color.FgWhite, color.Bold)
+	boldRed = color.New(color.FgRed, color.Bold)
+	boldYellow = color.New(color.FgYellow, color.Bold)
+
 	// Parse the command line arguments..
 	argParse()
 	// Parse the bom.yaml file
@@ -133,9 +140,10 @@ func parseBom() {
 	var err error
 	var source []byte
 	if _, err := os.Stat("bom.yaml"); err == nil {
+		boldYellow.Println("Warning: Reading bom.yaml file from current directory")
 		source, err = ioutil.ReadFile("bom.yaml")
-	} else if _, err := os.Stat(os.Getenv("GOPATH") + "/src/github.com/scalair/robokops/bom.yaml"); err == nil {
-		source, err = ioutil.ReadFile(os.Getenv("GOPATH") + "/src/github.com/scalair/robokops/bom.yaml")
+	} else if _, err := os.Stat("/etc/robokops/bom.yaml"); err == nil {
+		source, err = ioutil.ReadFile("/etc/robokops/bom.yaml")
 	} else {
 		ppError("Cannot find bom.yaml file", err)
 	}
@@ -192,11 +200,6 @@ func initialise() {
 	if err != nil {
 		ppError("Failed to use docker client. Make sure docker is installed and running.", err)
 	}
-
-	// Define awesome colors
-	boldGreen = color.New(color.FgGreen, color.Bold)
-	boldWhite = color.New(color.FgWhite, color.Bold)
-	boldRed = color.New(color.FgRed, color.Bold)
 
 	setTerminalWidth()
 }
