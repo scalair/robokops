@@ -31,3 +31,6 @@ default       Active   36m
 kube-public   Active   36m
 kube-system   Active   36m
 ```
+
+## Update cluster
+In order to update the cluster and the components deployed inside it (CNI, DNS, kube-proxy), follow the [AWS doc](https://docs.aws.amazon.com/eks/latest/userguide/update-cluster.html)
