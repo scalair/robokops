@@ -4,6 +4,10 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 For details about the features changes, you can look at their CHANGELOG.
 
+## 0.7.1 - 2019-10-30
+### Changed
+- Terraform release 0.2.0
+
 ## 0.7.0 - 2019-10-24
 ### Changed
 - **WARNING** (breaking change): `bom.yaml` moved from `$GOPATH/src/github.com/scalair/robokops/bom.yaml` to `/etc/robokops/bom.yaml`
