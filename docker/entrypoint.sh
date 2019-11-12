@@ -15,16 +15,15 @@ if [ -d /conf/${FEATURE_NAME} ]; then
 	# Since /conf is a docker volume, we have to copy everything before making changes
 	cp -r /conf/${FEATURE_NAME} /tmp
 	for MANIFEST in $(find /tmp/${FEATURE_NAME}/ -name '*.yaml' | sed "s|/tmp/${FEATURE_NAME}/||"); do
-		if [ -f /conf/${FEATURE_NAME}/${FEATURE_NAME}.conf ]; then
-			echo -e "Templating:\t ${FEATURE_NAME}/${MANIFEST} with ${FEATURE_NAME}.conf"
-			sempl -s /conf/${FEATURE_NAME}/${FEATURE_NAME}.conf /tmp/${FEATURE_NAME}/${MANIFEST}
-		fi
+		echo -e "Templating:\t /tmp/${FEATURE_NAME}/${MANIFEST}"
+		envsubst < /tmp/${FEATURE_NAME}/${MANIFEST} > /tmp/${FEATURE_NAME}/${MANIFEST}.tmp
+		mv /tmp/${FEATURE_NAME}/${MANIFEST}.tmp /tmp/${FEATURE_NAME}/${MANIFEST}
 		if [ -f /home/builder/src/${MANIFEST} ]; then
-			echo -e "Merging:\t ${FEATURE_NAME}/${MANIFEST} with /home/builder/src/${MANIFEST}"
+			echo -e "Merging:\t /tmp/${FEATURE_NAME}/${MANIFEST} with /home/builder/src/${MANIFEST}"
 			yq m -x -i /home/builder/src/${MANIFEST} /tmp/${FEATURE_NAME}/${MANIFEST}
 		else
-			echo -e "Copying:\t ${FEATURE_NAME}/${MANIFEST} into /home/builder/src/${MANIFEST}"
-			cp -r /tmp/${FEATURE_NAME}/${MANIFEST} /home/builder/src/${MANIFEST}
+			echo -e "Copying:\t /tmp/${FEATURE_NAME}/${MANIFEST} into /home/builder/src/${MANIFEST}"
+			cp /tmp/${FEATURE_NAME}/${MANIFEST} /home/builder/src/
 		fi
 	done
 fi

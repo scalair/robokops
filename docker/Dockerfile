@@ -26,7 +26,7 @@ RUN sudo ln -sf /usr/share/zoneinfo/Etc/UTC /etc/localtime
 
 # Install base and dev packages
 RUN sudo apk update && \
-	sudo apk add bash curl ca-certificates unzip git expect tini apache2-utils bison flex
+	sudo apk add bash curl ca-certificates unzip git expect tini apache2-utils bison flex gettext
 
 # aws-cli
 RUN sudo apk -Uuv add groff less python python-dev py-pip build-base && \
@@ -61,12 +61,8 @@ RUN sudo wget -q https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${V
 	sudo update-ca-certificates
 
 # yq
-RUN go get gopkg.in/mikefarah/yq.v2 && \
-	sudo ln -s /go/bin/yq.v2 /usr/local/bin/yq
-
-# sempl (https://github.com/nextrevision/sempl)
-RUN sudo wget -q https://github.com/nextrevision/sempl/raw/master/sempl -O /usr/local/bin/sempl && \
-	sudo chmod +x /usr/local/bin/sempl
+RUN sudo curl -L https://github.com/mikefarah/yq/releases/download/2.4.1/yq_linux_amd64 -o /usr/bin/yq && \
+    sudo chmod +x /usr/bin/yq
 
 # boxes (https://boxes.thomasjensen.com/)
 RUN sudo wget -q https://github.com/ascii-boxes/boxes/archive/v1.3.zip -O boxes-1.3.zip && \
