@@ -41,7 +41,7 @@ robokops --config example/ --action deploy --target ingress-nginx
 
 ## Secrets
 Managing secrets is another tricky part with Kubernetes, since you don't want to store them in plain text directly in manifests, you need a templating mechanism.
-With Robokops, you can use variables in your manifests which will be templated using [sempl](https://github.com/nextrevision/sempl)
+With Robokops, you can use variables in your manifests which will be templated using envsubst.
 
 ### Example
 To change Grafana credentials, create:
@@ -97,9 +97,6 @@ helm delete [...] --purge
 Also, you should always specify a chart version and use `--wait` option to avoid concurrent issues.
 
 ## Limitation
-
-### Sempl
-Sempl has some limitations, for instance if you have a custom yaml file with a string like `$(something)` sempl might try to change it with the variable value which is not define because you don't want to subtitute it. It's fairly unlikely that would have such a string in your override yaml file but if it happens there a no known workaround at the moment.
 
 ### Yq
 #### Special characters

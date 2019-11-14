@@ -8,7 +8,7 @@ Docker image used as a base for all features of Robokops
 * helm
 * vault
 * yq
-* sempl
+* envsubst
 * boxes
 * tini
 
