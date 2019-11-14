@@ -9,6 +9,19 @@ fi
 FEATURE_NAME=$(cat /name)
 ACTION=$1
 
+
+# Load custom configuration and authenticate to the cluster
+echo "Load custom configuration and authenticate to the cluster" | boxes -d shell -p l4r4
+if [ -f /conf/common.conf ]; then
+	source /conf/common.conf
+fi
+if [ -f /conf/${FEATURE_NAME}/${FEATURE_NAME}.conf ]; then
+	source /conf/${FEATURE_NAME}/${FEATURE_NAME}.conf
+fi
+if [ -f /conf/cluster-login.sh ]; then
+	/conf/cluster-login.sh
+fi
+
 # Customise manifests
 if [ -d /conf/${FEATURE_NAME} ]; then
 	echo "Updating manifests with custom configurations" | boxes -d shell -p l4r4
@@ -41,18 +54,6 @@ if [ "$ACTION" = "dry-run" ]; then
 	cp -r /home/builder/src/* /local/robokops/${FEATURE_NAME}/${DIR_NAME}
 	echo "You can find the generated manifests in: /tmp/robokops/${FEATURE_NAME}/${DIR_NAME}" | boxes -d shell -p l4r4
 	exit 0
-fi
-
-# Load custom configuration and authenticate to the cluster
-echo "Load custom configuration and authenticate to the cluster" | boxes -d shell -p l4r4
-if [ -f /conf/common.conf ]; then
-	source /conf/common.conf
-fi
-if [ -f /conf/${FEATURE_NAME}/${FEATURE_NAME}.conf ]; then
-	source /conf/${FEATURE_NAME}/${FEATURE_NAME}.conf
-fi
-if [ -f /conf/cluster-login.sh ]; then
-	/conf/cluster-login.sh
 fi
 
 # Helm setup (cluster-init will install tiller in the cluster so we don't do anything here)
