@@ -4,6 +4,10 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 For details about the features changes, you can look at their CHANGELOG.
 
+## 0.8.0 - 2019-11-18
+### Added
+- Vault release 0.1.0
+
 ## 0.7.1 - 2019-10-30
 ### Changed
 - Terraform release 0.2.0
