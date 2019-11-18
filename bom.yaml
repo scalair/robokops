@@ -1,4 +1,4 @@
-version: 0.6.1
+version: 0.8.0
 features:
   - name: aws-alb-ingress-controller
     image: scalair/robokops-aws-alb-ingress-controller
@@ -38,6 +38,9 @@ features:
     version: 0.1.1
   - name: terraform
     image: scalair/robokops-terraform
+    version: 0.2.0
+  - name: vault
+    image: scalair/robokops-vault
     version: 0.1.0
   - name: velero
     image: scalair/robokops-velero
