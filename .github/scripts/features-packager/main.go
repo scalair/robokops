@@ -7,7 +7,9 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -26,34 +28,27 @@ import (
 
 	"github.com/google/go-github/v28/github"
 	"golang.org/x/oauth2"
+	"gopkg.in/yaml.v2"
 )
 
 // Runtime regroups runtime parameters
 type Runtime struct {
+	bomPath         string
 	basePreviousTag string
 	baseCurrentTag  string
 	githubToken     string
 }
 
-var (
-	runtime  = &Runtime{}
-	repo     = "scalair/robokops"
-	features = []string{
-		"terraform",
-    "cluster-init",
-		"cluster-autoscaler",
-		"monitoring",
-		"elastic-stack",
-		"external-dns",
-		"ingress-nginx",
-		"aws-alb-ingress-controller",
-		"aws-efs-csi-driver",
-		"gitlabci",
-		"dashboard",
-		"velero",
-		"kubewatch",
-		"jenkins",
+// Bom partial definition
+type Bom struct {
+	Features []struct {
+		Name string
 	}
+}
+
+var (
+	runtime = &Runtime{}
+	repo    = "scalair/robokops"
 )
 
 func main() {
@@ -61,6 +56,11 @@ func main() {
 	log.Info("=== Robokops Packaging Script ===")
 
 	initEnv()
+
+	features, err := parseBom(runtime.bomPath)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	for _, feature := range features {
 		log.Infof("--- Packaging %s ---", feature)
@@ -78,7 +78,8 @@ func main() {
 		// clone repo in memory
 		r, err := clone(fs)
 		if err != nil {
-			log.Fatal(err)
+			log.Error(err)
+			continue
 		}
 
 		// get latest version from changelog
@@ -88,20 +89,23 @@ func main() {
 			`v?[0-9]+\.[0-9]+\.[0-9]+`,
 		)
 		if err != nil {
-			log.Fatal(err)
+			log.Error(err)
+			continue
 		}
 
 		// increment version by using robokops-base version
 		version, err = newVersion(version)
 		if err != nil {
-			log.Fatal(err)
+			log.Error(err)
+			continue
 		}
 
 		// create a branch named after the feature and its new version
 		// and checkout to it
 		w, err := checkout(r, feature+"/"+version)
 		if err != nil {
-			log.Fatal(err)
+			log.Error(err)
+			continue
 		}
 
 		// update robokops-base version in dockerfile
@@ -112,7 +116,8 @@ func main() {
 			"scalair/robokops-base:"+runtime.baseCurrentTag,
 		)
 		if err != nil {
-			log.Fatal(err)
+			log.Error(err)
+			continue
 		}
 
 		// add a new entry to the changelog
@@ -123,36 +128,45 @@ func main() {
 			fmt.Sprintf("# Changelog\n\n## %s - %s\n### Changed\n- Release %s", version, time.Now().Format("2006-01-02"), version),
 		)
 		if err != nil {
-			log.Fatal(err)
+			log.Error(err)
+			continue
 		}
 
 		// commit and push all changes
 		err = add(w, ".")
 		if err != nil {
-			log.Fatal(err)
+			log.Error(err)
+			continue
 		}
 		err = commit(w, fmt.Sprintf("Release %s %s", feature, version))
 		if err != nil {
-			log.Fatal(err)
+			log.Error(err)
+			continue
 		}
 		err = push(r)
 		if err != nil {
-			log.Fatal(err)
+			log.Error(err)
+			continue
 		}
 
 		err = pullRequest(feature, version, feature+"/"+version)
 		if err != nil {
-			log.Fatal(err)
+			log.Error(err)
+			continue
 		}
 	}
 }
 
 // parse command-line and environment to retrieve needed parameters
 func initEnv() error {
+	flag.StringVar(&runtime.bomPath, "b", runtime.bomPath, "Path of bom.yaml file")
 	flag.StringVar(&runtime.basePreviousTag, "p", runtime.basePreviousTag, "Previous tag of robokops-base image")
 	flag.StringVar(&runtime.baseCurrentTag, "c", runtime.baseCurrentTag, "Current tag of robokops-base image")
 	flag.StringVar(&runtime.githubToken, "g", runtime.githubToken, "Github token to branch, push and merge to Robokops repo")
 
+	if val, ok := os.LookupEnv("BOM_PATH"); ok {
+		runtime.bomPath = val
+	}
 	if val, ok := os.LookupEnv("BASE_PREVIOUS_TAG"); ok {
 		runtime.basePreviousTag = val
 	}
@@ -165,6 +179,9 @@ func initEnv() error {
 
 	flag.Parse()
 
+	if runtime.bomPath == "" {
+		runtime.bomPath = "bom.yaml"
+	}
 	if runtime.basePreviousTag == "" {
 		return errors.New("Previous tag command-line parameter is not set")
 	}
@@ -179,6 +196,39 @@ func initEnv() error {
 	log.Debugf("Base current tag %s", runtime.baseCurrentTag)
 
 	return nil
+}
+
+// parse the bom.yaml file and set features list
+func parseBom(bomPath string) ([]string, error) {
+	// check if we need to use relative or absolute path
+	if _, err := os.Stat(bomPath); os.IsNotExist(err) {
+		absPath, err := os.Executable()
+		if err != nil {
+			return nil, err
+		}
+		bomPath = filepath.Dir(absPath) + string(os.PathSeparator) + bomPath
+		if _, err := os.Stat(bomPath); os.IsNotExist(err) {
+			return nil, err
+		}
+	}
+
+	source, err := ioutil.ReadFile(bomPath)
+	if err != nil {
+		return nil, err
+	}
+
+	var bom Bom
+	err = yaml.Unmarshal(source, &bom)
+	if err != nil {
+		return nil, err
+	}
+
+	features := make([]string, len(bom.Features))
+	for i, feature := range bom.Features {
+		features[i] = feature.Name
+	}
+
+	return features, nil
 }
 
 // find and extract a specific string in a file
