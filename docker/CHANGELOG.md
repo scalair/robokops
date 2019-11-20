@@ -1,8 +1,8 @@
 # Changelog
 
-## 0.2.0 - 2019-11-14
+## 0.2.0 - 2019-11-20
 ### Changed
-- Replace sempl with envsubst for environment variables substitution 
+- Replace sempl with envsubst
 
 ## 0.1.1 - 2019-10-14
 ### Changed
