@@ -34,9 +34,10 @@ jobs:
       if: success()
       run: |
         cd .github/scripts/features-packager
-        go get -u
-        go run main.go
+        go build main.go
+        ./main
       env:
+        BOM_PATH: "../../../bom.yaml"
         BASE_PREVIOUS_TAG: ${{ steps.ref.outputs.previous_version }}
         BASE_CURRENT_TAG: ${{ steps.ref.outputs.feature_version }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
