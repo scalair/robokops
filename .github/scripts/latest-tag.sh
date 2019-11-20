@@ -18,8 +18,16 @@ fi
 
 image="$1"
 
-echo "Retrieving tags for ${image}..."
-raw_tags=`wget -q https://registry.hub.docker.com/v1/repositories/${image}/tags -O -`
+n=1
+until [ ${n} -ge 6 ]
+do
+   echo "Retrieving tags for ${image} (${n})..."
+   raw_tags=`wget -q https://registry.hub.docker.com/v1/repositories/${image}/tags -O -` && break
+   n=$((n+1))
+   sleep 5
+done
+[ ${n} -ge 6 ] && echo "Error: could not reach https://registry.hub.docker.com/v1/repositories/${image}/tags" && exit 1
+
 
 echo "Parsing and sorting tags..."
 latest_tag=`echo ${raw_tags} | sed -e 's/[][]//g' -e 's/"//g' -e 's/ //g' | tr '}' '\n' | awk -F: '{print $3}' | sort -r | grep -v latest | head -1`
