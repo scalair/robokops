@@ -14,7 +14,7 @@ For details about the features changes, you can look at their CHANGELOG.
 
 ## 0.7.0 - 2019-10-24
 ### Changed
-- **WARNING** (breaking change): `bom.yaml` moved from `$GOPATH/src/github.com/scalair/robokops/bom.yaml` to `/etc/robokops/bom.yaml`
+- **WARNING** (breaking change): `bom.yaml` moved from `$GOPATH/src/github.com/blakelead/robokops/bom.yaml` to `/etc/robokops/bom.yaml`
 - **WARNING**: binary moved from `$GOPATH/bin/robokops` to `/usr/local/bin/robokops`. You must remove the previous binary in order to use that version!
 - Installation process has evolved (moving from `go get` to a proper package installation). Installation via `go get` is no longer supported!
 
@@ -42,7 +42,7 @@ For details about the features changes, you can look at their CHANGELOG.
 
 ## 0.5.1 - 2019-10-02
 ### Fixed
-- [PR12](https://github.com/scalair/robokops/pull/12) Remove ended container from docker host
+- [PR12](https://github.com/blakelead/robokops/pull/12) Remove ended container from docker host
 
 ## 0.5.0 - 2019-10-01
 ### Added

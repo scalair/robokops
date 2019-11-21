@@ -1,4 +1,4 @@
-module github.com/scalair/robokops
+module github.com/blakelead/robokops
 
 go 1.12
 

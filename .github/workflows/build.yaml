@@ -6,23 +6,23 @@ on:
 
 jobs:
   base:
-    name: Build scalair/robokops-base
+    name: Build blakelead/robokops-base
     runs-on: ubuntu-18.04
     if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'base/')
     steps:
-    - name: Checkout scalair/robokops
+    - name: Checkout blakelead/robokops
       uses: actions/checkout@v1
     - name: Parse source branch
       id: ref
       run: |
-        bash .github/scripts/latest-tag.sh scalair/robokops-base
+        bash .github/scripts/latest-tag.sh blakelead/robokops-base
         echo ::set-output name=previous_version::$(cat latest_tag)
         echo ::set-output name=feature_version::$(echo ${GITHUB_HEAD_REF} | awk -F '/' '{print $2}')
     - name: Publish to Docker Hub
       if: success()
       uses: elgohr/Publish-Docker-Github-Action@2.6
       with:
-        name: scalair/robokops-base:${{ steps.ref.outputs.feature_version }}
+        name: blakelead/robokops-base:${{ steps.ref.outputs.feature_version }}
         workdir: docker
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
@@ -43,11 +43,11 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   terraform:
-    name: Build scalair/robokops-terraform
+    name: Build blakelead/robokops-terraform
     runs-on: ubuntu-18.04
     if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'terraform/')
     steps:
-    - name: Checkout scalair/robokops
+    - name: Checkout blakelead/robokops
       uses: actions/checkout@v1
     - name: Parse source branch
       id: ref
@@ -56,7 +56,7 @@ jobs:
       if: success()
       uses: elgohr/Publish-Docker-Github-Action@2.6
       with:
-        name: scalair/robokops-terraform:${{ steps.ref.outputs.feature_version }}
+        name: blakelead/robokops-terraform:${{ steps.ref.outputs.feature_version }}
         workdir: terraform
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
@@ -72,7 +72,7 @@ jobs:
       !startsWith(github.event.pull_request.head.ref, 'release/') &&
       !startsWith(github.event.pull_request.head.ref, 'bugfix/')
     steps:
-    - name: Checkout scalair/robokops
+    - name: Checkout blakelead/robokops
       uses: actions/checkout@v1
     - name: Parse source branch
       id: ref
@@ -83,7 +83,7 @@ jobs:
       if: success()
       uses: elgohr/Publish-Docker-Github-Action@2.6
       with:
-        name: scalair/robokops-${{ steps.ref.outputs.feature_name }}:${{ steps.ref.outputs.feature_version }}
+        name: blakelead/robokops-${{ steps.ref.outputs.feature_name }}:${{ steps.ref.outputs.feature_version }}
         workdir: k8s/${{ steps.ref.outputs.feature_name }}
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}

@@ -52,7 +52,7 @@ type Bom struct {
 
 var (
 	runtime = &Runtime{}
-	repo    = "scalair/robokops"
+	repo    = "blakelead/robokops"
 )
 
 func main() {
@@ -117,8 +117,8 @@ func main() {
 		err = updateFile(
 			&fs,
 			featurePath+"/Dockerfile",
-			"scalair/robokops-base:.*",
-			"scalair/robokops-base:"+runtime.baseCurrentTag,
+			"blakelead/robokops-base:.*",
+			"blakelead/robokops-base:"+runtime.baseCurrentTag,
 		)
 		if err != nil {
 			log.Error(err)

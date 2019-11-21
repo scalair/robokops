@@ -9,7 +9,7 @@ cat << HELP
 latest-tag  --  Get newest tag (except 'latest') from the remote registry
 
 EXAMPLE USAGE: 
-./latest-tag.sh scalair/robokops-base
+./latest-tag.sh blakelead/robokops-base
 
 HELP
 

@@ -1,47 +1,47 @@
 version: 0.8.0
 features:
 - name: aws-alb-ingress-controller
-  image: scalair/robokops-aws-alb-ingress-controller
+  image: blakelead/robokops-aws-alb-ingress-controller
   version: 0.2.1
 - name: aws-efs-csi-driver
-  image: scalair/robokops-aws-efs-csi-driver
+  image: blakelead/robokops-aws-efs-csi-driver
   version: 0.2.1
 - name: cluster-autoscaler
-  image: scalair/robokops-cluster-autoscaler
+  image: blakelead/robokops-cluster-autoscaler
   version: 0.2.1
 - name: cluster-init
-  image: scalair/robokops-cluster-init
+  image: blakelead/robokops-cluster-init
   version: 0.2.1
 - name: dashboard
-  image: scalair/robokops-dashboard
+  image: blakelead/robokops-dashboard
   version: 0.2.1
 - name: elastic-stack
-  image: scalair/robokops-elastic-stack
+  image: blakelead/robokops-elastic-stack
   version: 0.3.1
 - name: external-dns
-  image: scalair/robokops-external-dns
+  image: blakelead/robokops-external-dns
   version: 0.2.1
 - name: gitlabci
-  image: scalair/robokops-gitlabci
+  image: blakelead/robokops-gitlabci
   version: 0.2.1
 - name: ingress-nginx
-  image: scalair/robokops-ingress-nginx
+  image: blakelead/robokops-ingress-nginx
   version: 0.2.1
 - name: jenkins
-  image: scalair/robokops-jenkins
+  image: blakelead/robokops-jenkins
   version: 0.2.1
 - name: kubewatch
-  image: scalair/robokops-kubewatch
+  image: blakelead/robokops-kubewatch
   version: 0.2.1
 - name: monitoring
-  image: scalair/robokops-monitoring
+  image: blakelead/robokops-monitoring
   version: 0.2.1
 - name: terraform
-  image: scalair/robokops-terraform
+  image: blakelead/robokops-terraform
   version: 0.3.1
 - name: vault
-  image: scalair/robokops-vault
+  image: blakelead/robokops-vault
   version: 0.2.1
 - name: velero
-  image: scalair/robokops-velero
+  image: blakelead/robokops-velero
   version: 0.2.1
