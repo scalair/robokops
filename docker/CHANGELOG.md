@@ -2,7 +2,7 @@
 
 ## 0.2.0 - 2019-11-20
 ### Changed
-- Replace sempl with envsubst
+- Replace sempl with envsubst for variable substitution
 
 ## 0.1.1 - 2019-10-14
 ### Changed
