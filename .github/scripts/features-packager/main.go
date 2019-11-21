@@ -489,13 +489,13 @@ func merge(feature, version, branch string) error {
 	prNum := prRes.GetNumber()
 
 	log.Infof("Merge branch %s to master", branch)
-	_, _, err = client.PullRequests.Merge(ctx, owner, rep, prNum, "", &github.PullRequestOptions{MergeMethod: "squash"})
+	_, _, err = client.PullRequests.Merge(ctx, owner, rep, prNum, "", &github.PullRequestOptions{MergeMethod: "merge"})
 	if err != nil {
 		return err
 	}
 
 	log.Infof("Close pull request %d", prNum)
-	_, _, err = client.PullRequests.Edit(ctx, owner, rep, prNum, &github.PullRequest{State: github.String("closed"), Merged: github.Bool(true)})
+	_, _, err = client.PullRequests.Edit(ctx, owner, rep, prNum, &github.PullRequest{State: github.String("closed")})
 	if err != nil {
 		return err
 	}
