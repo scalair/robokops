@@ -140,14 +140,14 @@ func main() {
 		// update feature version in bom
 		for i, f := range bom.Features {
 			if f.Name == featureName {
-				log.Infof("Update bom file for %s to version %", featureName, version)
+				log.Infof("Update bom file for %s to version %s", featureName, version)
 				bom.Features[i].Version = version
 				data, err := yaml.Marshal(&bom)
 				if err != nil {
 					log.Error(err)
 					break
 				}
-				bomFile, err := fs.Create(runtime.bomPath)
+				bomFile, err := fs.Create("bom.yaml")
 				if err != nil {
 					log.Error(err)
 					break
@@ -362,7 +362,7 @@ func clone(fs billy.Filesystem) (*git.Repository, error) {
 	r, err := git.Clone(memory.NewStorage(), fs, &git.CloneOptions{
 		Auth:     &http.BasicAuth{Username: "empty", Password: runtime.githubToken},
 		URL:      fmt.Sprintf("https://github.com/%s.git", repo),
-		Progress: os.Stdout,
+		Progress: nil,
 	})
 	if err != nil {
 		return nil, err
@@ -452,7 +452,7 @@ func push(r *git.Repository) error {
 	log.Infof("Push")
 	err := r.Push(&git.PushOptions{
 		Auth:     &http.BasicAuth{Username: "empty", Password: runtime.githubToken},
-		Progress: os.Stdout,
+		Progress: nil,
 	})
 	if err != nil {
 		return err
@@ -486,8 +486,16 @@ func merge(feature, version, branch string) error {
 		return err
 	}
 
+	prNum := prRes.GetNumber()
+
 	log.Infof("Merge branch %s to master", branch)
-	_, _, err = client.PullRequests.Merge(ctx, owner, rep, prRes.GetNumber(), "", &github.PullRequestOptions{MergeMethod: "squash"})
+	_, _, err = client.PullRequests.Merge(ctx, owner, rep, prNum, "", &github.PullRequestOptions{MergeMethod: "squash"})
+	if err != nil {
+		return err
+	}
+
+	log.Infof("Close pull request %d", prNum)
+	_, _, err = client.PullRequests.Edit(ctx, owner, rep, prNum, &github.PullRequest{State: github.String("closed"), Merged: github.Bool(true)})
 	if err != nil {
 		return err
 	}
@@ -501,7 +509,7 @@ func deleteBranch(remote *git.Remote, branch string) error {
 	return remote.Push(&git.PushOptions{
 		Auth:     &http.BasicAuth{Username: "empty", Password: runtime.githubToken},
 		RefSpecs: []config.RefSpec{config.RefSpec(":refs/heads/" + branch)},
-		Progress: os.Stdout,
+		Progress: nil,
 	})
 }
 
