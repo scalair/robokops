@@ -5,7 +5,7 @@ features:
   version: 0.2.0
 - name: aws-efs-csi-driver
   image: scalair/robokops-aws-efs-csi-driver
-  version: 0.1.0
+  version: 0.2.0
 - name: cluster-autoscaler
   image: scalair/robokops-cluster-autoscaler
   version: 0.1.0
