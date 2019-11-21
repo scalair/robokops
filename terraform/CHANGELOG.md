@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.0 - 2019-11-21
+### Changed
+- Release 0.3.0
+
 ## 0.2.0 - 2019-10-31
 ### Changed
 - Update Terraform from 0.12.6 to 0.12.12
