@@ -1,5 +1,10 @@
 # Changelog
 
+
+## 0.4.1 - 2019-11-21
+### Changed
+- Test
+
 ## 0.2.1 - 2019-11-21
 ### Changed
 - Remove self-signed certificate dependency for Vault
