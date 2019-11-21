@@ -19,6 +19,7 @@ import (
 	"gopkg.in/src-d/go-billy.v4"
 	git "gopkg.in/src-d/go-git.v4"
 
+	"gopkg.in/src-d/go-git.v4/config"
 	"gopkg.in/src-d/go-git.v4/plumbing"
 	"gopkg.in/src-d/go-git.v4/plumbing/object"
 	"gopkg.in/src-d/go-git.v4/plumbing/transport/http"
@@ -41,9 +42,12 @@ type Runtime struct {
 
 // Bom partial definition
 type Bom struct {
+	Version  string `yaml:"version"`
 	Features []struct {
-		Name string
-	}
+		Name    string `yaml:"name"`
+		Image   string `yaml:"image"`
+		Version string `yaml:"version"`
+	} `yaml:"features"`
 }
 
 var (
@@ -53,26 +57,27 @@ var (
 
 func main() {
 	log.SetLevel(log.InfoLevel)
-	log.Info("=== Robokops Packaging Script ===")
+	log.Info("=== Robokops Features Packager Script ===")
 
 	initEnv()
 
-	features, err := parseBom(runtime.bomPath)
+	bom, err := parseBom(runtime.bomPath)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	for _, feature := range features {
-		log.Infof("--- Packaging %s ---", feature)
+	for _, feature := range bom.Features {
+		featureName := feature.Name
+		log.Infof("--- Packaging %s ---", featureName)
 
 		// in-memory filesystem abstraction used for cloning
 		// repo without relying on actual disk filesystem
 		fs := memfs.New()
 
 		// differentiate terraform feature from others
-		featurePath := feature
-		if feature != "terraform" {
-			featurePath = "k8s/" + feature
+		featurePath := featureName
+		if featureName != "terraform" {
+			featurePath = "k8s/" + featureName
 		}
 
 		// clone repo in memory
@@ -94,7 +99,7 @@ func main() {
 		}
 
 		// increment version by using robokops-base version
-		version, err = newVersion(version)
+		version, err = increment(version)
 		if err != nil {
 			log.Error(err)
 			continue
@@ -102,7 +107,7 @@ func main() {
 
 		// create a branch named after the feature and its new version
 		// and checkout to it
-		w, err := checkout(r, feature+"/"+version)
+		w, err := checkout(r, featureName+"/"+version)
 		if err != nil {
 			log.Error(err)
 			continue
@@ -132,13 +137,42 @@ func main() {
 			continue
 		}
 
+		// update feature version in bom
+		for i, f := range bom.Features {
+			if f.Name == featureName {
+				log.Infof("Update bom file for %s to version %", featureName, version)
+				bom.Features[i].Version = version
+				data, err := yaml.Marshal(&bom)
+				if err != nil {
+					log.Error(err)
+					break
+				}
+				bomFile, err := fs.Create(runtime.bomPath)
+				if err != nil {
+					log.Error(err)
+					break
+				}
+				defer bomFile.Close()
+				_, err = bomFile.Write(data)
+				if err != nil {
+					log.Error(err)
+					break
+				}
+				break
+			}
+		}
+		if err != nil {
+			log.Error(err)
+			continue
+		}
+
 		// commit and push all changes
 		err = add(w, ".")
 		if err != nil {
 			log.Error(err)
 			continue
 		}
-		err = commit(w, fmt.Sprintf("Release %s %s", feature, version))
+		err = commit(w, fmt.Sprintf("Release %s %s", featureName, version))
 		if err != nil {
 			log.Error(err)
 			continue
@@ -149,7 +183,18 @@ func main() {
 			continue
 		}
 
-		err = pullRequest(feature, version, feature+"/"+version)
+		err = merge(featureName, version, featureName+"/"+version)
+		if err != nil {
+			log.Error(err)
+			continue
+		}
+
+		rem, err := r.Remote("origin")
+		if err != nil {
+			log.Error(err)
+			continue
+		}
+		err = deleteBranch(rem, featureName+"/"+version)
 		if err != nil {
 			log.Error(err)
 			continue
@@ -162,7 +207,7 @@ func initEnv() error {
 	flag.StringVar(&runtime.bomPath, "b", runtime.bomPath, "Path of bom.yaml file")
 	flag.StringVar(&runtime.basePreviousTag, "p", runtime.basePreviousTag, "Previous tag of robokops-base image")
 	flag.StringVar(&runtime.baseCurrentTag, "c", runtime.baseCurrentTag, "Current tag of robokops-base image")
-	flag.StringVar(&runtime.githubToken, "g", runtime.githubToken, "Github token to branch, push and merge to Robokops repo")
+	flag.StringVar(&runtime.githubToken, "g", runtime.githubToken, "Githunilb token to branch, push and merge to Robokops repo")
 
 	if val, ok := os.LookupEnv("BOM_PATH"); ok {
 		runtime.bomPath = val
@@ -199,41 +244,41 @@ func initEnv() error {
 }
 
 // parse the bom.yaml file and set features list
-func parseBom(bomPath string) ([]string, error) {
+func parseBom(bomPath string) (Bom, error) {
 	// check if we need to use relative or absolute path
 	if _, err := os.Stat(bomPath); os.IsNotExist(err) {
 		absPath, err := os.Executable()
 		if err != nil {
-			return nil, err
+			return Bom{}, err
 		}
 		bomPath = filepath.Dir(absPath) + string(os.PathSeparator) + bomPath
 		if _, err := os.Stat(bomPath); os.IsNotExist(err) {
-			return nil, err
+			return Bom{}, err
 		}
 	}
 
 	source, err := ioutil.ReadFile(bomPath)
 	if err != nil {
-		return nil, err
+		return Bom{}, err
 	}
 
 	var bom Bom
 	err = yaml.Unmarshal(source, &bom)
 	if err != nil {
-		return nil, err
+		return Bom{}, err
 	}
 
-	features := make([]string, len(bom.Features))
-	for i, feature := range bom.Features {
-		features[i] = feature.Name
-	}
+	// features := make([]string, len(bom.Features))
+	// for i, feature := range bom.Features {
+	// 	features[i] = feature.Name
+	// }
 
-	return features, nil
+	return bom, nil
 }
 
 // find and extract a specific string in a file
 func findInFile(fs *billy.Filesystem, filename, expression string) (string, error) {
-	log.Info("Get current version")
+	log.Infof("Find a string in the file %s", filename)
 	file, err := (*fs).Open(filename)
 	if err != nil {
 		return "", err
@@ -246,87 +291,59 @@ func findInFile(fs *billy.Filesystem, filename, expression string) (string, erro
 	return version, nil
 }
 
-// which version digit to increment
-func incrementChoice() (string, error) {
-	previousTagTokens := strings.Split(runtime.basePreviousTag, ".")
-	previousTagTokens[0] = strings.Trim(previousTagTokens[0], "v")
-
-	currentTagTokens := strings.Split(runtime.baseCurrentTag, ".")
-	currentTagTokens[0] = strings.Trim(currentTagTokens[0], "v")
-
-	prevMaj, err := strconv.Atoi(previousTagTokens[0])
-	if err != nil {
-		return "", err
-	}
-	currMaj, err := strconv.Atoi(currentTagTokens[0])
-	if err != nil {
-		return "", err
-	}
-	if prevMaj < currMaj {
-		return "major", nil
-	}
-
-	prevMin, err := strconv.Atoi(previousTagTokens[1])
-	if err != nil {
-		return "", err
-	}
-	currMin, err := strconv.Atoi(currentTagTokens[1])
-	if err != nil {
-		return "", err
-	}
-	if prevMin < currMin {
-		return "minor", nil
-	}
-
-	prevPatch, err := strconv.Atoi(previousTagTokens[2])
-	if err != nil {
-		return "", err
-	}
-	currPatch, err := strconv.Atoi(currentTagTokens[2])
-	if err != nil {
-		return "", err
-	}
-	if prevPatch < currPatch {
-		return "patch", nil
-	}
-
-	return "", errors.New("Could not increment version")
-}
-
 // increment version based on some rules
-func newVersion(version string) (string, error) {
-	log.Info("Increment version")
+func increment(version string) (string, error) {
+	log.Infof("Increment version %s", version)
+
+	if !isValidVersion(version) {
+		return "", errors.New("Feature version must be to the form '[v]x.y.z', found: " + version)
+	}
+
 	hasV := strings.HasPrefix(version, "v")
+	version = strings.Trim(version, "v")
 	tokens := strings.Split(version, ".")
-	tokens[0] = strings.Trim(tokens[0], "v")
 
-	log.Debugf("Previous feature version: %s.%s.%s", tokens[0], tokens[1], tokens[2])
+	versionMaj, _ := strconv.Atoi(tokens[0])
+	versionMin, _ := strconv.Atoi(tokens[1])
+	versionPatch, _ := strconv.Atoi(tokens[2])
 
-	digitMaj, _ := strconv.Atoi(tokens[0])
-	digitMin, _ := strconv.Atoi(tokens[1])
-	digitPatch, _ := strconv.Atoi(tokens[2])
-
-	increment, err := incrementChoice()
-	if err != nil {
-		return "", err
+	if !isValidVersion(runtime.basePreviousTag) {
+		return "", errors.New("Previous base versions must be to the form '[v]x.y.z', found: " + runtime.basePreviousTag)
+	}
+	if !isValidVersion(runtime.baseCurrentTag) {
+		return "", errors.New("Previous base versions must be to the form '[v]x.y.z', found: " + runtime.baseCurrentTag)
 	}
 
-	if increment == "major" {
-		digitMaj++
-		digitMin = 0
-		digitPatch = 0
-	} else if increment == "minor" {
-		digitMin++
-		digitPatch = 0
-	} else if increment == "patch" {
-		digitPatch++
+	prevTokens := strings.Split(runtime.basePreviousTag, ".")
+	prevTokens[0] = strings.Trim(prevTokens[0], "v")
+
+	nextTokens := strings.Split(runtime.baseCurrentTag, ".")
+	nextTokens[0] = strings.Trim(nextTokens[0], "v")
+
+	prevMaj, _ := strconv.Atoi(prevTokens[0])
+	prevMin, _ := strconv.Atoi(prevTokens[1])
+	prevPatch, _ := strconv.Atoi(prevTokens[2])
+
+	nextMaj, _ := strconv.Atoi(nextTokens[0])
+	nextMin, _ := strconv.Atoi(nextTokens[1])
+	nextPatch, _ := strconv.Atoi(nextTokens[2])
+
+	if prevMaj < nextMaj {
+		versionMaj++
+		versionMin = 0
+		versionPatch = 0
+	} else if prevMin < nextMin {
+		versionMin++
+		versionPatch = 0
+	} else if prevPatch < nextPatch {
+		versionPatch++
 	} else {
-		return "", errors.New("Previous tag and current tag are identical")
+		return "", errors.New("Previous and current versions cannot be identical")
 	}
 
-	tokens[0] = strconv.Itoa(digitMaj)
-	tokens[1] = strconv.Itoa(digitMin)
-	tokens[2] = strconv.Itoa(digitPatch)
+	tokens[0] = strconv.Itoa(versionMaj)
+	tokens[1] = strconv.Itoa(versionMin)
+	tokens[2] = strconv.Itoa(versionPatch)
 
 	if hasV {
 		tokens[0] = "v" + tokens[0]
@@ -334,20 +351,18 @@ func newVersion(version string) (string, error) {
 
 	version = strings.Join(tokens, ".")
 
-	log.Debugf("New feature version: %s", version)
+	log.Infof("Incremented to version %s", version)
 
 	return version, nil
 }
 
 // clone git repo with Github token
 func clone(fs billy.Filesystem) (*git.Repository, error) {
-	log.Infof("Git clone %s", repo)
+	log.Infof("Clone the repository %s", repo)
 	r, err := git.Clone(memory.NewStorage(), fs, &git.CloneOptions{
-		Auth: &http.BasicAuth{
-			Username: "empty",
-			Password: runtime.githubToken,
-		},
-		URL: fmt.Sprintf("https://github.com/%s.git", repo),
+		Auth:     &http.BasicAuth{Username: "empty", Password: runtime.githubToken},
+		URL:      fmt.Sprintf("https://github.com/%s.git", repo),
+		Progress: os.Stdout,
 	})
 	if err != nil {
 		return nil, err
@@ -357,7 +372,7 @@ func clone(fs billy.Filesystem) (*git.Repository, error) {
 
 // create a new branch and checkout to it
 func checkout(r *git.Repository, branch string) (*git.Worktree, error) {
-	log.Infof("Git branch %s ", branch)
+	log.Infof("Create the branch %s ", branch)
 	headRef, err := r.Head()
 	if err != nil {
 		return nil, err
@@ -371,6 +386,7 @@ func checkout(r *git.Repository, branch string) (*git.Worktree, error) {
 	if err != nil {
 		return nil, err
 	}
+	log.Infof("Checkout the branch %s", branch)
 	err = w.Checkout(&git.CheckoutOptions{Branch: ref.Name()})
 	if err != nil {
 		return nil, err
@@ -380,7 +396,6 @@ func checkout(r *git.Repository, branch string) (*git.Worktree, error) {
 
 // replace one line (src) of a file by another (dst)
 func updateFile(fs *billy.Filesystem, filename, src, dst string) error {
-
 	log.Infof("Update %s", filename)
 	file, err := (*fs).Open(filename)
 	if err != nil {
@@ -391,7 +406,6 @@ func updateFile(fs *billy.Filesystem, filename, src, dst string) error {
 	re := regexp.MustCompile(src)
 	cnt := re.ReplaceAllString(string(buf.Bytes()), dst)
 	file.Close()
-
 	newFile, err := (*fs).Create(filename)
 	if err != nil {
 		return err
@@ -402,27 +416,27 @@ func updateFile(fs *billy.Filesystem, filename, src, dst string) error {
 	}
 	newFile.Close()
 
+	log.Debugf("File %s content:\n%s", filename, cnt)
+
 	return nil
 }
 
 // add changes of filename in staging area
 func add(w *git.Worktree, filename string) error {
-	log.Infof("Git add %s", filename)
+	log.Infof("Add %s", filename)
 	_, err := w.Add(filename)
 	if err != nil {
 		return err
 	}
-	status, _ := w.Status()
-	log.Debugf("Add status:\n%s", status)
 	return nil
 }
 
 // commit staged changes
 func commit(w *git.Worktree, message string) error {
-	log.Infof("Git commit -m '%s'", message)
+	log.Infof("Commit with message: %s", message)
 	_, err := w.Commit(message, &git.CommitOptions{
 		Author: &object.Signature{
-			Name:  "auto",
+			Name:  "scalaircloudops",
 			Email: "cloudops@scalair.fr",
 			When:  time.Now(),
 		},
@@ -430,21 +444,15 @@ func commit(w *git.Worktree, message string) error {
 	if err != nil {
 		return err
 	}
-	status, _ := w.Status()
-	log.Debugf("Commit status:\n%s", status)
-
 	return nil
 }
 
 // push branch to repo
 func push(r *git.Repository) error {
-	log.Infof("Git push")
+	log.Infof("Push")
 	err := r.Push(&git.PushOptions{
-		RemoteName: "origin",
-		Auth: &http.BasicAuth{
-			Username: "empty",
-			Password: runtime.githubToken,
-		},
+		Auth:     &http.BasicAuth{Username: "empty", Password: runtime.githubToken},
+		Progress: os.Stdout,
 	})
 	if err != nil {
 		return err
@@ -452,31 +460,66 @@ func push(r *git.Repository) error {
 	return nil
 }
 
-// create a pull request for the feature in Github
-func pullRequest(feature, version, branch string) error {
-	log.Info("Pull request")
-	authToken := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: runtime.githubToken})
-	authClient := oauth2.NewClient(context.Background(), authToken)
-
-	client := github.NewClient(authClient)
-
-	pr := &github.NewPullRequest{
-		Title:               github.String("Release " + feature + " " + version),
-		Head:                github.String(branch),
-		Base:                github.String("master"),
-		Body:                github.String("Pull request created automatically by the Robokops features packager script"),
-		MaintainerCanModify: github.Bool(true),
-	}
-
+// create a pull request for the feature in Github and merge it to master
+func merge(feature, version, branch string) error {
 	orgRepo := strings.Split(repo, "/")
 	if len(orgRepo) != 2 {
 		return errors.New("Repository name must be to the form 'owner/repository'")
 	}
+	owner := orgRepo[0]
+	rep := orgRepo[1]
 
-	_, _, err := client.PullRequests.Create(context.Background(), orgRepo[0], orgRepo[1], pr)
+	ctx := context.Background()
+
+	authToken := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: runtime.githubToken})
+	authClient := oauth2.NewClient(ctx, authToken)
+	client := github.NewClient(authClient)
+
+	log.Infof("Pull request: Release %s %s", feature, version)
+	prRes, _, err := client.PullRequests.Create(ctx, owner, rep, &github.NewPullRequest{
+		Title: github.String("Release " + feature + " " + version),
+		Head:  github.String(branch),
+		Base:  github.String("master"),
+	},
+	)
+	if err != nil {
+		return err
+	}
+
+	log.Infof("Merge branch %s to master", branch)
+	_, _, err = client.PullRequests.Merge(ctx, owner, rep, prRes.GetNumber(), "", &github.PullRequestOptions{MergeMethod: "squash"})
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+// delete branch in the remote
+func deleteBranch(remote *git.Remote, branch string) error {
+	log.Infof("Delete branch %s", branch)
+	return remote.Push(&git.PushOptions{
+		Auth:     &http.BasicAuth{Username: "empty", Password: runtime.githubToken},
+		RefSpecs: []config.RefSpec{config.RefSpec(":refs/heads/" + branch)},
+		Progress: os.Stdout,
+	})
+}
+
+// check if version is to the form [v]x.y.z
+func isValidVersion(version string) bool {
+	version = strings.Trim(version, "v")
+	tokens := strings.Split(version, ".")
+	if len(tokens) != 3 {
+		return false
+	}
+	if _, err := strconv.Atoi(tokens[0]); err != nil {
+		return false
+	}
+	if _, err := strconv.Atoi(tokens[1]); err != nil {
+		return false
+	}
+	if _, err := strconv.Atoi(tokens[2]); err != nil {
+		return false
+	}
+	return true
 }
