@@ -53,6 +53,9 @@ type Bom struct {
 var (
 	runtime = &Runtime{}
 	repo    = "scalair/robokops"
+	// used in commit signature:
+	authorName  = "scalaircloudops"
+	authorEmail = "cloudops@scalair.fr"
 )
 
 func main() {
@@ -136,7 +139,6 @@ func main() {
 			log.Error(err)
 			continue
 		}
-
 		// update feature version in bom
 		for i, f := range bom.Features {
 			if f.Name == featureName {
@@ -268,11 +270,6 @@ func parseBom(bomPath string) (Bom, error) {
 		return Bom{}, err
 	}
 
-	// features := make([]string, len(bom.Features))
-	// for i, feature := range bom.Features {
-	// 	features[i] = feature.Name
-	// }
-
 	return bom, nil
 }
 
@@ -295,65 +292,26 @@ func findInFile(fs *billy.Filesystem, filename, expression string) (string, erro
 func increment(version string) (string, error) {
 	log.Infof("Increment version %s", version)
 
-	if !isValidVersion(version) {
-		return "", errors.New("Feature version must be to the form '[v]x.y.z', found: " + version)
+	featureVersion, err := toVersion(version)
+	if err != nil {
+		return "", fmt.Errorf("Feature version must be to the form [v]x.y.z: %s", err.Error())
 	}
 
-	hasV := strings.HasPrefix(version, "v")
-	version = strings.Trim(version, "v")
-	tokens := strings.Split(version, ".")
-
-	versionMaj, _ := strconv.Atoi(tokens[0])
-	versionMin, _ := strconv.Atoi(tokens[1])
-	versionPatch, _ := strconv.Atoi(tokens[2])
-
-	if !isValidVersion(runtime.basePreviousTag) {
-		return "", errors.New("Previous base versions must be to the form '[v]x.y.z', found: " + runtime.basePreviousTag)
-	}
-	if !isValidVersion(runtime.baseCurrentTag) {
-		return "", errors.New("Previous base versions must be to the form '[v]x.y.z', found: " + runtime.baseCurrentTag)
+	basePreviousVersion, err := toVersion(runtime.basePreviousTag)
+	if err != nil {
+		return "", errors.New("Previous base version must be to the form '[v]x.y.z', found: " + runtime.basePreviousTag)
 	}
 
-	prevTokens := strings.Split(runtime.basePreviousTag, ".")
-	prevTokens[0] = strings.Trim(prevTokens[0], "v")
-
-	nextTokens := strings.Split(runtime.baseCurrentTag, ".")
-	nextTokens[0] = strings.Trim(nextTokens[0], "v")
-
-	prevMaj, _ := strconv.Atoi(prevTokens[0])
-	prevMin, _ := strconv.Atoi(prevTokens[1])
-	prevPatch, _ := strconv.Atoi(prevTokens[2])
-
-	nextMaj, _ := strconv.Atoi(nextTokens[0])
-	nextMin, _ := strconv.Atoi(nextTokens[1])
-	nextPatch, _ := strconv.Atoi(nextTokens[2])
-
-	if prevMaj < nextMaj {
-		versionMaj++
-		versionMin = 0
-		versionPatch = 0
-	} else if prevMin < nextMin {
-		versionMin++
-		versionPatch = 0
-	} else if prevPatch < nextPatch {
-		versionPatch++
-	} else {
-		return "", errors.New("Previous and current versions cannot be identical")
+	baseNextVersion, err := toVersion(runtime.baseCurrentTag)
+	if err != nil {
+		return "", errors.New("Current base version must be to the form '[v]x.y.z', found: " + runtime.basePreviousTag)
 	}
 
-	tokens[0] = strconv.Itoa(versionMaj)
-	tokens[1] = strconv.Itoa(versionMin)
-	tokens[2] = strconv.Itoa(versionPatch)
-
-	if hasV {
-		tokens[0] = "v" + tokens[0]
-	}
-
-	version = strings.Join(tokens, ".")
+	newFeatureVersion := featureVersion.Increment(basePreviousVersion, baseNextVersion)
 
 	log.Infof("Incremented to version %s", version)
 
-	return version, nil
+	return newFeatureVersion.String(), nil
 }
 
 // clone git repo with Github token
@@ -436,8 +394,8 @@ func commit(w *git.Worktree, message string) error {
 	log.Infof("Commit with message: %s", message)
 	_, err := w.Commit(message, &git.CommitOptions{
 		Author: &object.Signature{
-			Name:  "scalaircloudops",
-			Email: "cloudops@scalair.fr",
+			Name:  authorName,
+			Email: authorEmail,
 			When:  time.Now(),
 		},
 	})
@@ -462,43 +420,44 @@ func push(r *git.Repository) error {
 
 // create a pull request for the feature in Github and merge it to master
 func merge(feature, version, branch string) error {
-	orgRepo := strings.Split(repo, "/")
-	if len(orgRepo) != 2 {
+	splitRepo := strings.Split(repo, "/")
+	if len(splitRepo) != 2 {
 		return errors.New("Repository name must be to the form 'owner/repository'")
 	}
-	owner := orgRepo[0]
-	rep := orgRepo[1]
+	repoOwner := splitRepo[0]
+	repoName := splitRepo[1]
 
 	ctx := context.Background()
 
-	authToken := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: runtime.githubToken})
-	authClient := oauth2.NewClient(ctx, authToken)
-	client := github.NewClient(authClient)
+	client := github.NewClient(oauth2.NewClient(ctx, oauth2.StaticTokenSource(&oauth2.Token{AccessToken: runtime.githubToken})))
 
 	log.Infof("Pull request: Release %s %s", feature, version)
-	prRes, _, err := client.PullRequests.Create(ctx, owner, rep, &github.NewPullRequest{
-		Title: github.String("Release " + feature + " " + version),
-		Head:  github.String(branch),
-		Base:  github.String("master"),
+	pr, _, err := client.PullRequests.Create(ctx, repoOwner, repoName, &github.NewPullRequest{
+		Title:               github.String("Release " + feature + " " + version),
+		Head:                github.String(branch),
+		Base:                github.String("master"),
+		MaintainerCanModify: github.Bool(true),
 	},
 	)
 	if err != nil {
 		return err
 	}
 
-	prNum := prRes.GetNumber()
+	prNum := pr.GetNumber()
 
+	// wait until the branch is merged or timeout is reached
 	log.Infof("Merge branch %s to master", branch)
-	_, _, err = client.PullRequests.Merge(ctx, owner, rep, prNum, "", &github.PullRequestOptions{MergeMethod: "squash"})
-	if err != nil {
-		return err
+	timeout := time.Now().Add(30 * time.Second)
+	for {
+		_, _, err = client.PullRequests.Merge(ctx, repoOwner, repoName, prNum, *pr.Title, &github.PullRequestOptions{MergeMethod: "squash"})
+		if err == nil || time.Now().After(timeout) {
+			break
+		} else {
+			log.Error(err)
+			log.Info("Retrying...")
+		}
 	}
-
-	log.Infof("Close pull request %d", prNum)
-	_, _, err = client.PullRequests.Edit(ctx, owner, rep, prNum, &github.PullRequest{State: github.String("closed"), Merged: github.Bool(true)})
-	if err != nil {
-		return err
-	}
+	log.Info("Merge done")
 
 	return nil
 }
@@ -513,21 +472,73 @@ func deleteBranch(remote *git.Remote, branch string) error {
 	})
 }
 
-// check if version is to the form [v]x.y.z
-func isValidVersion(version string) bool {
-	version = strings.Trim(version, "v")
-	tokens := strings.Split(version, ".")
+//
+// Version type
+//
+
+// Version to the form [v]x.y.z
+type Version struct {
+	Prefix bool // v
+	Major  int
+	Minor  int
+	Patch  int
+}
+
+// Version to string
+func (v Version) String() string {
+	var prefix string
+	if v.Prefix {
+		prefix = "v"
+	}
+	return fmt.Sprintf("%s%d.%d.%d", prefix, v.Major, v.Minor, v.Patch)
+}
+
+// Increment version based on the update from base to next versions
+func (v Version) Increment(base, next Version) Version {
+	version := v
+
+	if next.Major > base.Major {
+		version.Major++
+		version.Minor = 0
+		version.Patch = 0
+	} else if next.Minor > base.Minor {
+		version.Minor++
+		version.Patch = 0
+	} else if next.Patch > base.Patch {
+		version.Patch++
+	}
+
+	return version
+}
+
+func toVersion(strVersion string) (Version, error) {
+	var version Version
+
+	hasPrefix := strings.HasPrefix(strVersion, "v")
+	strVersion = strings.Trim(strVersion, "v")
+
+	tokens := strings.Split(strVersion, ".")
 	if len(tokens) != 3 {
-		return false
+		return Version{}, errors.New("Incorrect version format")
 	}
-	if _, err := strconv.Atoi(tokens[0]); err != nil {
-		return false
+
+	major, err := strconv.Atoi(tokens[0])
+	if err != nil {
+		return Version{}, errors.New("Incorrect major version format")
 	}
-	if _, err := strconv.Atoi(tokens[1]); err != nil {
-		return false
+	minor, err := strconv.Atoi(tokens[1])
+	if err != nil {
+		return Version{}, errors.New("Incorrect minor version format")
 	}
-	if _, err := strconv.Atoi(tokens[2]); err != nil {
-		return false
+	patch, err := strconv.Atoi(tokens[2])
+	if err != nil {
+		return Version{}, errors.New("Incorrect patch version format")
 	}
-	return true
+
+	version.Prefix = hasPrefix
+	version.Major = major
+	version.Minor = minor
+	version.Patch = patch
+
+	return version, nil
 }
