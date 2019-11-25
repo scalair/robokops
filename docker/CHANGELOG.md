@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.2.0 - 2019-11-20
+## 0.2.0 - 2019-11-25
 ### Changed
 - Replace sempl with envsubst for variable substitution
 
