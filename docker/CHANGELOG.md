@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.1 - 2019-11-25
+### Changed
+- Remove self-signed certs from Vault installation
+
 ## 0.2.0 - 2019-11-20
 ### Changed
 - Replace sempl with envsubst for variable substitution
