@@ -59,7 +59,7 @@ var (
 )
 
 func main() {
-	log.SetLevel(log.InfoLevel)
+	log.SetLevel(log.TraceLevel)
 	log.Info("=== Robokops Features Packager Script ===")
 
 	initEnv()
@@ -432,7 +432,7 @@ func merge(feature, version, branch string) error {
 	client := github.NewClient(oauth2.NewClient(ctx, oauth2.StaticTokenSource(&oauth2.Token{AccessToken: runtime.githubToken})))
 
 	log.Infof("Pull request: Release %s %s", feature, version)
-	pr, _, err := client.PullRequests.Create(ctx, repoOwner, repoName, &github.NewPullRequest{
+	pr, gr, err := client.PullRequests.Create(ctx, repoOwner, repoName, &github.NewPullRequest{
 		Title:               github.String("Release " + feature + " " + version),
 		Head:                github.String(branch),
 		Base:                github.String("master"),
@@ -443,14 +443,18 @@ func merge(feature, version, branch string) error {
 		return err
 	}
 
+	log.Trace(gr)
+
 	prNum := pr.GetNumber()
 
 	// wait until the branch is merged or timeout is reached
 	log.Infof("Merge branch %s to master", branch)
 	timeout := time.Now().Add(30 * time.Second)
 	for {
-		_, _, err = client.PullRequests.Merge(ctx, repoOwner, repoName, prNum, *pr.Title, &github.PullRequestOptions{MergeMethod: "squash"})
+		mr, gr, err := client.PullRequests.Merge(ctx, repoOwner, repoName, prNum, *pr.Title, &github.PullRequestOptions{MergeMethod: "squash"})
 		if err == nil || time.Now().After(timeout) {
+			log.Trace(mr)
+			log.Trace(gr)
 			break
 		} else {
 			log.Error(err)
