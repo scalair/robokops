@@ -1,1 +1,0 @@
-This file is the Vault CA of Scalair. At the moment we have to install it in the container because we used a self signed certificate. We have to change it to a publicly signed CA
