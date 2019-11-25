@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.2 - 2019-11-25
+### Changed
+- Release 0.1.2
+
 ## 0.1.2 - 2019-10-14
 ### Changed
 - Update base image
