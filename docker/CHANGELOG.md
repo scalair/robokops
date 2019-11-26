@@ -2,7 +2,7 @@
 
 ## 0.2.2 - 2019-11-26
 ### Fixed
-- Bad templating
+- Bad templating of yaml files
 
 ## 0.2.1 - 2019-11-26
 ### Changed
