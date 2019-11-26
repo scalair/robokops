@@ -40,7 +40,7 @@ jobs:
         BOM_PATH: "../../../bom.yaml"
         BASE_PREVIOUS_TAG: ${{ steps.ref.outputs.previous_version }}
         BASE_CURRENT_TAG: ${{ steps.ref.outputs.feature_version }}
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
 
   terraform:
     name: Build scalair/robokops-terraform
@@ -66,11 +66,11 @@ jobs:
     runs-on: ubuntu-18.04
     if: >
       github.event.pull_request.merged == true &&
-      startsWith(github.event.pull_request.head.ref, 'base/') != true &&
-      startsWith(github.event.pull_request.head.ref, 'terraform/') != true &&
-      startsWith(github.event.pull_request.head.ref, 'feature/') != true &&
-      startsWith(github.event.pull_request.head.ref, 'release/') != true &&
-      startsWith(github.event.pull_request.head.ref, 'bugfix/') != true
+      !startsWith(github.event.pull_request.head.ref, 'base/') &&
+      !startsWith(github.event.pull_request.head.ref, 'terraform/') &&
+      !startsWith(github.event.pull_request.head.ref, 'feature/') &&
+      !startsWith(github.event.pull_request.head.ref, 'release/') &&
+      !startsWith(github.event.pull_request.head.ref, 'bugfix/')
     steps:
     - name: Checkout scalair/robokops
       uses: actions/checkout@v1
