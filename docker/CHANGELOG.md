@@ -1,6 +1,10 @@
 # Changelog
 
 ## 0.2.1 - 2019-11-26
+### Fixed
+- Bad yaml templating
+
+## 0.2.1 - 2019-11-26
 ### Changed
 - Remove certificate from vault installation
 
