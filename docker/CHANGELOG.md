@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.2 - 2019-11-26
+### Fixed
+- Bad templating
+
 ## 0.2.1 - 2019-11-26
 ### Changed
 - Remove certificate from vault installation
