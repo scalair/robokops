@@ -38,7 +38,7 @@ features:
   version: 0.1.2
 - name: terraform
   image: scalair/robokops-terraform
-  version: 0.2.0
+  version: 0.2.1
 - name: vault
   image: scalair/robokops-vault
   version: 0.1.0
