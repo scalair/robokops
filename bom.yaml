@@ -11,7 +11,7 @@ features:
   version: 0.1.1
 - name: cluster-init
   image: scalair/robokops-cluster-init
-  version: 0.1.2
+  version: 0.1.3
 - name: dashboard
   image: scalair/robokops-dashboard
   version: 0.1.0
