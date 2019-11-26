@@ -44,4 +44,4 @@ features:
   version: 0.1.1
 - name: velero
   image: scalair/robokops-velero
-  version: 0.1.0
+  version: 0.1.1
