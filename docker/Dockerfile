@@ -50,15 +50,10 @@ RUN sudo wget -q https://storage.googleapis.com/kubernetes-helm/helm-v${HELM_VER
 	sudo chmod +x /usr/local/bin/helm
 
 # vault
-# TODO: this CA is specific to Scalair Vault. We should use a publicly signed CA instead
-COPY vault/ca.crt.pem /usr/share/ca-certificates/ca.crt.pem
-
 RUN sudo wget -q https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_linux_amd64.zip && \
 	sudo unzip -q vault_${VAULT_VERSION}_linux_amd64.zip && \
 	sudo mv vault /usr/bin/vault && \
-	sudo rm -f vault_${VAULT_VERSION}_linux_amd64.zip && \
-	echo "ca.crt.pem" | sudo tee -a /etc/ca-certificates.conf && \
-	sudo update-ca-certificates
+	sudo rm -f vault_${VAULT_VERSION}_linux_amd64.zip
 
 # yq
 RUN sudo curl -L https://github.com/mikefarah/yq/releases/download/2.4.1/yq_linux_amd64 -o /usr/bin/yq && \
