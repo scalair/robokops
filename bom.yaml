@@ -20,7 +20,7 @@ features:
   version: 0.2.2
 - name: external-dns
   image: scalair/robokops-external-dns
-  version: 0.1.1
+  version: 0.1.2
 - name: gitlabci
   image: scalair/robokops-gitlabci
   version: 0.1.1
