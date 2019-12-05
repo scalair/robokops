@@ -1,6 +1,6 @@
 # Robokops
 ## TL;DR
-* Downloald the latest version of Robokops: https://github.com/maximerenou50/robokops/releases/latest
+* Downloald the latest version of Robokops: https://github.com/scalair/robokops/releases/latest
 * Extract the .tar.gz and install it with `make`: `make install`
 ```
 robokops --config example/ --terraform apply --action deploy --target cluster-init --target cluster-autoscaler --target dashboard --target monitoring --target elastic-stack

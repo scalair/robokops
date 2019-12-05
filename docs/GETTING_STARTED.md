@@ -2,7 +2,7 @@
 This example creates a Kubernetes cluster on AWS using EKS with monitoring, log collector, administration dashboard and autoscaling.
 
 ## Prerequisites
-* Downloald the latest version of Robokops: https://github.com/maximerenou50/robokops/releases/latest
+* Downloald the latest version of Robokops: https://github.com/scalair/robokops/releases/latest
 * Extract the .tar.gz and install it with `make`: `make install`
 * You must have an AWS account to run that example
 * Create a key-pair on AWS with the same value you will set on `ENV_NAME` below.
