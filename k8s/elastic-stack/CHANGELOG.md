@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.3 - 2019-12-11
+### Changed
+- Release 0.2.3
+
 ## 0.2.2 - 2019-11-26
 ### Changed
 - Release 0.2.2
