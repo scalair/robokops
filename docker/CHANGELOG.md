@@ -1,6 +1,11 @@
 # Changelog
 
-## 0.2.1 - 2019-11-26
+## 0.3.0 - 2019-12-16
+### Changed
+- Update helm version to 2.16.1
+- Update aws cli version to 1.16.292
+
+## 0.2.2 - 2019-11-26
 ### Fixed
 - Bad yaml templating
 
