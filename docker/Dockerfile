@@ -1,7 +1,7 @@
 FROM golang:alpine3.10
 
 # https://pypi.org/project/awscli/
-ENV AWSCLI_VERSION=1.16.197
+ENV AWSCLI_VERSION=1.16.292
 # https://docs.aws.amazon.com/eks/latest/userguide/install-aws-iam-authenticator.html
 ENV AWS_IAM_AUTHENTICATOR=1.13.7
 # https://aur.archlinux.org/packages/kubectl-bin/
