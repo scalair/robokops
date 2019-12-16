@@ -1,4 +1,4 @@
-FROM scalair/robokops-base:0.2.3
+FROM scalair/robokops-base:0.3.0
 COPY src /home/builder/src
 RUN sudo chown -R builder:builder /home/builder
 RUN echo 'elastic-stack' | sudo tee /name
