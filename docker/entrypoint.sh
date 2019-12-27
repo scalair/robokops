@@ -27,7 +27,6 @@ if [ -d /conf/${FEATURE_NAME} ]; then
 	echo "Updating manifests with custom configurations" | boxes -d shell -p l4r4
 	# Since /conf is a docker volume, we have to copy everything before making changes
 	cp -r /conf/${FEATURE_NAME} /tmp
-	mkdir -p /home/builder/src/pre-manifests /home/builder/src/manifests /home/builder/src/post-manifests
 	for MANIFEST in $(find /tmp/${FEATURE_NAME}/ -name '*.yaml' | sed "s|/tmp/${FEATURE_NAME}/||"); do
 		echo -e "Templating:\t /tmp/${FEATURE_NAME}/${MANIFEST}"
 		envsubst < /tmp/${FEATURE_NAME}/${MANIFEST} > /tmp/${FEATURE_NAME}/${MANIFEST}.tmp
@@ -37,6 +36,7 @@ if [ -d /conf/${FEATURE_NAME} ]; then
 			yq m -x -i /home/builder/src/${MANIFEST} /tmp/${FEATURE_NAME}/${MANIFEST}
 		else
 			echo -e "Copying:\t /tmp/${FEATURE_NAME}/${MANIFEST} into /home/builder/src/${MANIFEST}"
+            mkdir -p /home/builder/src/$(dirname ${MANIFEST})
 			cp /tmp/${FEATURE_NAME}/${MANIFEST} /home/builder/src/${MANIFEST}
 		fi
 	done
