@@ -36,7 +36,7 @@ if [ -d /conf/${FEATURE_NAME} ]; then
 			yq m -x -i /home/builder/src/${MANIFEST} /tmp/${FEATURE_NAME}/${MANIFEST}
 		else
 			echo -e "Copying:\t /tmp/${FEATURE_NAME}/${MANIFEST} into /home/builder/src/${MANIFEST}"
-            mkdir -p /home/builder/src/$(dirname ${MANIFEST})
+                        mkdir -p /home/builder/src/$(dirname ${MANIFEST})
 			cp /tmp/${FEATURE_NAME}/${MANIFEST} /home/builder/src/${MANIFEST}
 		fi
 	done
