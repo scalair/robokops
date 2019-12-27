@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.1 - 2019-12-27
+### Fixed
+- Some subdirectories where not present in builder container, making execution to fail
+
 ## 0.3.0 - 2019-12-16
 ### Changed
 - Update helm version to 2.16.1
