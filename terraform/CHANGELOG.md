@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.0 - 2020-01-10
+### Changed
+- Update Terraform from 0.12.12 to 0.12.19
+- Update Terragrunt from 0.21.1 to 0.21.10
+
 ## 0.3.1 - 2019-12-27
 ### Changed
 - Release 0.3.1
