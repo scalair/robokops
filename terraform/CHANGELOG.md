@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.0 - 2020-01-13
+### Changed
+- Release 0.5.0
+
 ## 0.4.0 - 2020-01-10
 ### Changed
 - Update Terraform from 0.12.12 to 0.12.19
