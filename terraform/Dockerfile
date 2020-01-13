@@ -30,8 +30,8 @@ RUN wget -q https://github.com/gruntwork-io/terragrunt/releases/download/v${TERR
 RUN echo "http://dl-5.alpinelinux.org/alpine/edge/testing" | sudo tee -a /etc/apk/repositories && \
     sudo apk --update add keybase-client
 
-# ssh
-RUN sudo apk add openssh && \
+# ssh and openssl
+RUN sudo apk add openssh openssl && \
     mkdir /home/builder/.ssh
 
 WORKDIR /home/builder/src
