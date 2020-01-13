@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.0 - 2020-01-13
+### Changed
+- Update aws-cli version from 1.16.292 to 1.17.0
+
 ## 0.3.1 - 2019-12-27
 ### Fixed
 - Some subdirectories where not present in builder container, making execution to fail
