@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.0 - 2020-02-19
+### Changed
+- Release 0.6.0
+
 ## 0.5.1 - 2020-01-13
 ### Fixed
 - Missing openssl
