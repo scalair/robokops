@@ -5,7 +5,7 @@
     kubeletSelector: 'job="kubelet"',
     kubeStateMetricsSelector: 'job="kube-state-metrics"',
     nodeExporterSelector: 'job="node-exporter"',
-    notKubeDnsSelector: 'job!="kube-dns"',
+    notKubeDnsCoreDnsSelector: 'job!~"kube-dns|coredns"',
     kubeSchedulerSelector: 'job="kube-scheduler"',
     kubeControllerManagerSelector: 'job="kube-controller-manager"',
     kubeApiserverSelector: 'job="kube-apiserver"',
@@ -53,7 +53,7 @@
 
       // For links between grafana dashboards, you need to tell us if your grafana
       // servers under some non-root path.
-      linkPrefix: '',
+      linkPrefix: '.',
     },
 
     // We alert when the aggregate (CPU, Memory) quota for all namespaces is
