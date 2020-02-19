@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.0 - 2020-02-19
+### Added
+- Add gcloud cli
+
 ## 0.4.0 - 2020-01-13
 ### Changed
 - Update aws-cli version from 1.16.292 to 1.17.0

@@ -4,6 +4,8 @@ FROM golang:alpine3.10
 ENV AWSCLI_VERSION=1.17.0
 # https://docs.aws.amazon.com/eks/latest/userguide/install-aws-iam-authenticator.html
 ENV AWS_IAM_AUTHENTICATOR=1.13.7
+# https://github.com/GoogleCloudPlatform/cloud-sdk-docker
+ENV GCLOUD_SDK_VERSION=281.0.0
 # https://aur.archlinux.org/packages/kubectl-bin/
 ENV KUBECTL_VERSION=1.15.0
 # https://github.com/kubernetes/helm/releases
@@ -37,6 +39,16 @@ RUN sudo apk -Uuv add groff less python python-dev py-pip build-base && \
 # aws-iam-authenticator
 RUN sudo wget -q https://amazon-eks.s3-us-west-2.amazonaws.com/${AWS_IAM_AUTHENTICATOR}/2019-06-11/bin/linux/amd64/aws-iam-authenticator -O /usr/local/bin/aws-iam-authenticator && \
 	sudo chmod +x /usr/local/bin/aws-iam-authenticator
+
+# gcloud
+ENV PATH /google-cloud-sdk/bin:$PATH
+RUN curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${GCLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
+    tar xzf google-cloud-sdk-${GCLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
+	sudo mv google-cloud-sdk / && \
+    rm google-cloud-sdk-${GCLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
+    gcloud config set core/disable_usage_reporting true && \
+    gcloud config set component_manager/disable_update_check true && \
+    gcloud config set metrics/environment github_docker_image
 
 # kubectl
 RUN sudo wget -q https://storage.googleapis.com/kubernetes-release/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl -O /usr/local/bin/kubectl && \
