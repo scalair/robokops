@@ -46,6 +46,7 @@ Here is the list of parameters for `robokops`:
 | target      | Targets of the action. If not provided will execute against all matching configuration folders                               | no       |
 | env         | Define environment variables to pass to containers. You can use `--env all` to map all env vars available in your OS context | no       |
 | ssh         | Path of the .ssh directory (use only by Terraform to clone private modules)                                                  | no       |
+| network     | Network mode to use for the containers: default, host, none                                                                  | no       |
 | dev         | Add this flag to use local docker image instead of the remote registry                                                       | no       |
 | version     | Return the installed version of Robokops                                                                                     | no       |
 
