@@ -23,7 +23,7 @@ features:
   version: 0.4.0
 - name: gitlabci
   image: scalair/robokops-gitlabci
-  version: 0.3.0
+  version: 0.4.0
 - name: ingress-nginx
   image: scalair/robokops-ingress-nginx
   version: 0.3.0
