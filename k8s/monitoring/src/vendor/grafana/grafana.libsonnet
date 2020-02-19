@@ -5,21 +5,27 @@ local k = import 'ksonnet/ksonnet.beta.4/k.libsonnet';
     namespace: 'default',
 
     versions+:: {
-      grafana: '6.2.1',
+      grafana: '6.4.3',
     },
 
     imageRepos+:: {
       grafana: 'grafana/grafana',
     },
 
+    prometheus+:: {
+      name: 'k8s',
+      serviceName: 'prometheus-' + $._config.prometheus.name,
+    },
+
     grafana+:: {
       dashboards: {},
+      rawDashboards: {},
       datasources: [{
         name: 'prometheus',
         type: 'prometheus',
         access: 'proxy',
         orgId: 1,
-        url: 'http://prometheus-k8s.' + $._config.namespace + '.svc:9090',
+        url: 'http://' + $._config.prometheus.serviceName + '.' + $._config.namespace + '.svc:9090',
         version: 1,
         editable: false,
       }],
@@ -36,8 +42,8 @@ local k = import 'ksonnet/ksonnet.beta.4/k.libsonnet';
   grafana+: {
     [if std.length($._config.grafana.config) > 0 then 'config']:
       local secret = k.core.v1.secret;
-      local grafanaConfig = { 'grafana.ini': std.base64(std.manifestIni($._config.grafana.config)) } +
-                            if $._config.grafana.ldap != null then { 'ldap.toml': std.base64($._config.grafana.ldap) } else {};
+      local grafanaConfig = { 'grafana.ini': std.base64(std.encodeUTF8(std.manifestIni($._config.grafana.config))) } +
+                            if $._config.grafana.ldap != null then { 'ldap.toml': std.base64(std.encodeUTF8($._config.grafana.ldap)) } else {};
       secret.new('grafana-config', grafanaConfig) +
       secret.mixin.metadata.withNamespace($._config.namespace),
     dashboardDefinitions:
@@ -48,7 +54,14 @@ local k = import 'ksonnet/ksonnet.beta.4/k.libsonnet';
         configMap.mixin.metadata.withNamespace($._config.namespace)
 
         for name in std.objectFields($._config.grafana.dashboards)
-      ],
+      ] + if std.length($._config.grafana.rawDashboards) > 0 then
+        [
+          local dashboardName = 'grafana-dashboard-' + std.strReplace(name, '.json', '');
+          configMap.new(dashboardName, { [name]: $._config.grafana.rawDashboards[name] }) +
+          configMap.mixin.metadata.withNamespace($._config.namespace)
+
+          for name in std.objectFields($._config.grafana.rawDashboards)
+        ] else [],
     dashboardSources:
       local configMap = k.core.v1.configMap;
       local dashboardSources = import 'configs/dashboard-sources/dashboards.libsonnet';
@@ -57,10 +70,10 @@ local k = import 'ksonnet/ksonnet.beta.4/k.libsonnet';
       configMap.mixin.metadata.withNamespace($._config.namespace),
     dashboardDatasources:
       local secret = k.core.v1.secret;
-      secret.new('grafana-datasources', { 'datasources.yaml': std.base64(std.manifestJsonEx({
+      secret.new('grafana-datasources', { 'datasources.yaml': std.base64(std.encodeUTF8(std.manifestJsonEx({
         apiVersion: 1,
         datasources: $._config.grafana.datasources,
-      }, '    ')) }) +
+      }, '    '))) }) +
       secret.mixin.metadata.withNamespace($._config.namespace),
     service:
       local service = k.core.v1.service;
@@ -118,6 +131,12 @@ local k = import 'ksonnet/ksonnet.beta.4/k.libsonnet';
           containerVolumeMount.new('grafana-dashboard-' + dashboardName, '/grafana-dashboard-definitions/0/' + dashboardName)
           for name in std.objectFields($._config.grafana.dashboards)
         ] +
+        [
+          local dashboardName = std.strReplace(name, '.json', '');
+          containerVolumeMount.new('grafana-dashboard-' + dashboardName, '/grafana-dashboard-definitions/0/' + dashboardName)
+          for name in std.objectFields($._config.grafana.rawDashboards)
+        ] +
+
         if std.length($._config.grafana.config) > 0 then [configVolumeMount] else [];
 
       local volumes =
@@ -131,6 +150,12 @@ local k = import 'ksonnet/ksonnet.beta.4/k.libsonnet';
           volume.withName(dashboardName) +
           volume.mixin.configMap.withName(dashboardName)
           for name in std.objectFields($._config.grafana.dashboards)
+        ] +
+        [
+          local dashboardName = 'grafana-dashboard-' + std.strReplace(name, '.json', '');
+          volume.withName(dashboardName) +
+          volume.mixin.configMap.withName(dashboardName)
+          for name in std.objectFields($._config.grafana.rawDashboards)
         ] +
         if std.length($._config.grafana.config) > 0 then [configVolume] else [];
 
