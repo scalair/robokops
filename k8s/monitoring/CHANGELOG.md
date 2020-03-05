@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.0 - 2020-03-05
+### Changed
+- Update kube-prometheus
+
 ## 0.4.0 - 2020-02-19
 ### Changed
 - Release 0.4.0
