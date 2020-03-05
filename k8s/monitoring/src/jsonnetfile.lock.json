@@ -1,62 +1,27 @@
 {
+  "version": 1,
   "dependencies": [
     {
-      "name": "etcd-mixin",
-      "source": {
-        "git": {
-          "remote": "https://github.com/coreos/etcd",
-          "subdir": "Documentation/etcd-mixin"
-        }
-      },
-      "version": "d6a3c995cf86b479cb5a44b48d000feb33e3d8f8",
-      "sum": "Ko3qhNfC2vN/houLh6C0Ryacjv70gl0DVPGU/PQ4OD0="
-    },
-    {
-      "name": "grafana",
       "source": {
         "git": {
           "remote": "https://github.com/brancz/kubernetes-grafana",
           "subdir": "grafana"
         }
       },
-      "version": "539a90dbf63c812ad0194d8078dd776868a11c81",
-      "sum": "b8faWX1qqLGyN67sA36oRqYZ5HX+tHBRMPtrWRqIysE="
+      "version": "57b4365eacda291b82e0d55ba7eec573a8198dda",
+      "sum": "92DWADwGjnCfpZaL7Q07C0GZayxBziGla/O03qWea34="
     },
     {
-      "name": "grafana-builder",
       "source": {
         "git": {
-          "remote": "https://github.com/kausalco/public",
-          "subdir": "grafana-builder"
+          "remote": "https://github.com/coreos/etcd",
+          "subdir": "Documentation/etcd-mixin"
         }
       },
-      "version": "7ac7da1a0fe165b68cdb718b2521b560d51bd1f4",
-      "sum": "slxrtftVDiTlQK22ertdfrg4Epnq97gdrLI63ftUfaE="
+      "version": "6f850a65a115f663bf0cd0499d16ff6e0131dfde",
+      "sum": "Ko3qhNfC2vN/houLh6C0Ryacjv70gl0DVPGU/PQ4OD0="
     },
     {
-      "name": "grafonnet",
-      "source": {
-        "git": {
-          "remote": "https://github.com/grafana/grafonnet-lib",
-          "subdir": "grafonnet"
-        }
-      },
-      "version": "c459106d2d2b583dd3a83f6c75eb52abee3af764",
-      "sum": "CeM3LRgUCUJTolTdMnerfMPGYmhClx7gX5ajrQVEY2Y="
-    },
-    {
-      "name": "ksonnet",
-      "source": {
-        "git": {
-          "remote": "https://github.com/ksonnet/ksonnet-lib",
-          "subdir": ""
-        }
-      },
-      "version": "0d2f82676817bbf9e4acf6495b2090205f323b9f",
-      "sum": "h28BXZ7+vczxYJ2sCt8JuR9+yznRtU/iA6DCpQUrtEg="
-    },
-    {
-      "name": "kube-prometheus",
       "source": {
         "git": {
           "remote": "https://github.com/coreos/kube-prometheus",
@@ -67,18 +32,6 @@
       "sum": "yvmOy0M7gxHBV1djDkJ9Tfw8RusHATJYxc332pvut+0="
     },
     {
-      "name": "kubernetes-mixin",
-      "source": {
-        "git": {
-          "remote": "https://github.com/kubernetes-monitoring/kubernetes-mixin",
-          "subdir": ""
-        }
-      },
-      "version": "0ee0da08a9691201a118d30f6b396381c2c8d017",
-      "sum": "r+ibLhIoXzEWGXUCntSd44IRxeopnZkFfZ0OGZR2s1U="
-    },
-    {
-      "name": "prometheus-operator",
       "source": {
         "git": {
           "remote": "https://github.com/coreos/prometheus-operator",
@@ -87,6 +40,48 @@
       },
       "version": "18fbf558ab7f8809fd610a3dc50bf483508dc1bb",
       "sum": "8lpIe0LbkZV/GeMOzljyyVLFcuzvICVn84K8ys9pXzw="
+    },
+    {
+      "source": {
+        "git": {
+          "remote": "https://github.com/grafana/grafonnet-lib",
+          "subdir": "grafonnet"
+        }
+      },
+      "version": "db36a706bd1c87056759eacb686102133eb4740c",
+      "sum": "g1aMw5iYEP/Dkw1wo1pcfe7q4LIpXc4wqDZsjaCpsRc="
+    },
+    {
+      "source": {
+        "git": {
+          "remote": "https://github.com/kausalco/public",
+          "subdir": "grafana-builder"
+        }
+      },
+      "version": "c19a92e586a6752f11745b47f309b13f02ef7147",
+      "sum": "slxrtftVDiTlQK22ertdfrg4Epnq97gdrLI63ftUfaE="
+    },
+    {
+      "source": {
+        "git": {
+          "remote": "https://github.com/ksonnet/ksonnet-lib",
+          "subdir": ""
+        }
+      },
+      "version": "0d2f82676817bbf9e4acf6495b2090205f323b9f",
+      "sum": "h28BXZ7+vczxYJ2sCt8JuR9+yznRtU/iA6DCpQUrtEg=",
+      "name": "ksonnet"
+    },
+    {
+      "source": {
+        "git": {
+          "remote": "https://github.com/kubernetes-monitoring/kubernetes-mixin",
+          "subdir": ""
+        }
+      },
+      "version": "0ee0da08a9691201a118d30f6b396381c2c8d017",
+      "sum": "r+ibLhIoXzEWGXUCntSd44IRxeopnZkFfZ0OGZR2s1U="
     }
-  ]
+  ],
+  "legacyImports": false
 }

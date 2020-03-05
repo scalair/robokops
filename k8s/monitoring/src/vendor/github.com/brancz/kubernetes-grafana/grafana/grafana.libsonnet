@@ -5,7 +5,7 @@ local k = import 'ksonnet/ksonnet.beta.4/k.libsonnet';
     namespace: 'default',
 
     versions+:: {
-      grafana: '6.4.3',
+      grafana: '6.6.0',
     },
 
     imageRepos+:: {
@@ -20,6 +20,7 @@ local k = import 'ksonnet/ksonnet.beta.4/k.libsonnet';
     grafana+:: {
       dashboards: {},
       rawDashboards: {},
+      folderDashboards: {},
       datasources: [{
         name: 'prometheus',
         type: 'prometheus',
@@ -32,10 +33,13 @@ local k = import 'ksonnet/ksonnet.beta.4/k.libsonnet';
       config: {},
       ldap: null,
       plugins: [],
+      env: [],
+      port: 3000,
       container: {
         requests: { cpu: '100m', memory: '100Mi' },
         limits: { cpu: '200m', memory: '200Mi' },
       },
+      containers: [],
     },
   },
   grafanaDashboards: {},
@@ -54,6 +58,13 @@ local k = import 'ksonnet/ksonnet.beta.4/k.libsonnet';
         configMap.mixin.metadata.withNamespace($._config.namespace)
 
         for name in std.objectFields($._config.grafana.dashboards)
+      ] + [
+        local dashboardName = 'grafana-dashboard-' + std.strReplace(name, '.json', '');
+        configMap.new(dashboardName, { [name]: std.manifestJsonEx($._config.grafana.folderDashboards[folder][name], '    ') }) +
+        configMap.mixin.metadata.withNamespace($._config.namespace)
+
+        for folder in std.objectFields($._config.grafana.folderDashboards)
+        for name in std.objectFields($._config.grafana.folderDashboards[folder])
       ] + if std.length($._config.grafana.rawDashboards) > 0 then
         [
           local dashboardName = 'grafana-dashboard-' + std.strReplace(name, '.json', '');
@@ -64,7 +75,31 @@ local k = import 'ksonnet/ksonnet.beta.4/k.libsonnet';
         ] else [],
     dashboardSources:
       local configMap = k.core.v1.configMap;
-      local dashboardSources = import 'configs/dashboard-sources/dashboards.libsonnet';
+      local dashboardSources = {
+        apiVersion: 1,
+        providers: [
+          {
+            name: '0',
+            orgId: 1,
+            folder: 'Default',
+            type: 'file',
+            options: {
+              path: '/grafana-dashboard-definitions/0',
+            },
+          },
+        ] + [
+          {
+            name: folder,
+            orgId: 1,
+            folder: folder,
+            type: 'file',
+            options: {
+              path: '/grafana-dashboard-definitions/' + folder,
+            },
+          }
+          for folder in std.objectFields($._config.grafana.folderDashboards)
+        ],
+      };
 
       configMap.new('grafana-dashboards', { 'dashboards.yaml': std.manifestJsonEx(dashboardSources, '    ') }) +
       configMap.mixin.metadata.withNamespace($._config.namespace),
@@ -79,7 +114,7 @@ local k = import 'ksonnet/ksonnet.beta.4/k.libsonnet';
       local service = k.core.v1.service;
       local servicePort = k.core.v1.service.mixin.spec.portsType;
 
-      local grafanaServiceNodePort = servicePort.newNamed('http', 3000, 'http');
+      local grafanaServiceNodePort = servicePort.newNamed('http', $._config.grafana.port, 'http');
 
       service.new('grafana', $.grafana.deployment.spec.selector.matchLabels, grafanaServiceNodePort) +
       service.mixin.metadata.withLabels({ app: 'grafana' }) +
@@ -97,7 +132,7 @@ local k = import 'ksonnet/ksonnet.beta.4/k.libsonnet';
       local podSelector = deployment.mixin.spec.template.spec.selectorType;
       local env = container.envType;
 
-      local targetPort = 3000;
+      local targetPort = $._config.grafana.port;
       local portName = 'http';
       local podLabels = { app: 'grafana' };
 
@@ -133,6 +168,12 @@ local k = import 'ksonnet/ksonnet.beta.4/k.libsonnet';
         ] +
         [
           local dashboardName = std.strReplace(name, '.json', '');
+          containerVolumeMount.new('grafana-dashboard-' + dashboardName, '/grafana-dashboard-definitions/' + folder + '/' + dashboardName)
+          for folder in std.objectFields($._config.grafana.folderDashboards)
+          for name in std.objectFields($._config.grafana.folderDashboards[folder])
+        ] +
+        [
+          local dashboardName = std.strReplace(name, '.json', '');
           containerVolumeMount.new('grafana-dashboard-' + dashboardName, '/grafana-dashboard-definitions/0/' + dashboardName)
           for name in std.objectFields($._config.grafana.rawDashboards)
         ] +
@@ -155,19 +196,29 @@ local k = import 'ksonnet/ksonnet.beta.4/k.libsonnet';
           local dashboardName = 'grafana-dashboard-' + std.strReplace(name, '.json', '');
           volume.withName(dashboardName) +
           volume.mixin.configMap.withName(dashboardName)
+          for folder in std.objectFields($._config.grafana.folderDashboards)
+          for name in std.objectFields($._config.grafana.folderDashboards[folder])
+        ] +
+        [
+          local dashboardName = 'grafana-dashboard-' + std.strReplace(name, '.json', '');
+          volume.withName(dashboardName) +
+          volume.mixin.configMap.withName(dashboardName)
           for name in std.objectFields($._config.grafana.rawDashboards)
         ] +
         if std.length($._config.grafana.config) > 0 then [configVolume] else [];
 
-      local c =
+      local plugins = (if std.length($._config.grafana.plugins) == 0 then [] else [env.new('GF_INSTALL_PLUGINS', std.join(',', $._config.grafana.plugins))]);
+
+      local c = [
         container.new('grafana', $._config.imageRepos.grafana + ':' + $._config.versions.grafana) +
-        (if std.length($._config.grafana.plugins) == 0 then {} else container.withEnv([env.new('GF_INSTALL_PLUGINS', std.join(',', $._config.grafana.plugins))])) +
+        container.withEnv($._config.grafana.env + plugins) +
         container.withVolumeMounts(volumeMounts) +
         container.withPorts(containerPort.newNamed(targetPort, portName)) +
         container.mixin.readinessProbe.httpGet.withPath('/api/health') +
         container.mixin.readinessProbe.httpGet.withPort(portName) +
         container.mixin.resources.withRequests($._config.grafana.container.requests) +
-        container.mixin.resources.withLimits($._config.grafana.container.limits);
+        container.mixin.resources.withLimits($._config.grafana.container.limits),
+      ] + $._config.grafana.containers;
 
       deployment.new('grafana', 1, c, podLabels) +
       deployment.mixin.metadata.withNamespace($._config.namespace) +
