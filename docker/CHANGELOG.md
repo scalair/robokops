@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.1 - 2020-04-27
+### Fixed
+- Failed manifest deletion caused other silent failures
+
 ## 0.5.0 - 2020-02-19
 ### Added
 - Add gcloud cli
