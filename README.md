@@ -53,5 +53,19 @@ Here is the list of parameters for `robokops`:
 ## Changelog
 See [CHANGELOG.md](CHANGELOG.md)
 
+## Release
+
+### Features
+
+In order to release features, a pull request must be made, with a specific branch format:
+
+`base/x.y.z` for robokops-base image (*docker/* folder)
+`terraform/x.y.z` for robokops-terraform image (*terraform/* folder)
+`<feature name>/x.y.z` for all other features images (*k8s/* folder)
+
+### Robokops
+
+Robokops release is triggered when a tag with `x.y.z` format is pushed.
+
 ## Documentation
 The documentation can be find in [docs](/docs)
