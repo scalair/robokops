@@ -59,9 +59,9 @@ See [CHANGELOG.md](CHANGELOG.md)
 
 In order to release features, a pull request must be made, with a specific branch format:
 
-`base/x.y.z` for robokops-base image (*docker/* folder)
-`terraform/x.y.z` for robokops-terraform image (*terraform/* folder)
-`<feature name>/x.y.z` for all other features images (*k8s/* folder)
+- `base/x.y.z` for robokops-base image (*docker/* folder)
+- `terraform/x.y.z` for robokops-terraform image (*terraform/* folder)
+- `<feature name>/x.y.z` for all other features images (*k8s/* folder)
 
 ### Robokops
 
