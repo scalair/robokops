@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.1 - 2020-04-27
+### Changed
+- Delete PVC when deleting feature
+
 ## 0.5.0 - 2020-03-05
 ### Changed
 - Update kube-prometheus
