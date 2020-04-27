@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.7.1 - 2020-04-27
+### Changed
+- Release 0.7.1
+
 ## 0.7.0 - 2020-02-19
 ### Changed
 - Update Terraform from 0.12.19 to 0.12.21
