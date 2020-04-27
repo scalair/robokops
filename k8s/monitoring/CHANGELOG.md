@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.2 - 2020-04-27
+### Changed
+- Release 0.5.2
+
 ## 0.5.1 - 2020-04-27
 ### Changed
 - Delete PVC when deleting feature
