@@ -68,7 +68,7 @@ fi
 if [ -d /tmp/${FEATURE_NAME}/pre-manifests ]; then
 	if [ "$ACTION" = "delete" ]; then
 		echo "Deleting pre-manifests" | boxes -d shell -p l4r4
-		kubectl delete -f /tmp/${FEATURE_NAME}/pre-manifests
+		kubectl delete -f /tmp/${FEATURE_NAME}/pre-manifests --ignore-not-found
 	else
 		echo "Applying pre-manifests" | boxes -d shell -p l4r4
 		kubectl apply -f /tmp/${FEATURE_NAME}/pre-manifests
@@ -79,7 +79,7 @@ fi
 if [ -d /tmp/${FEATURE_NAME}/post-manifests ]; then
 	if [ "$ACTION" = "delete" ]; then
 		echo "Deleting post-manifests" | boxes -d shell -p l4r4
-		kubectl delete -f /tmp/${FEATURE_NAME}/post-manifests
+		kubectl delete -f /tmp/${FEATURE_NAME}/post-manifests --ignore-not-found
 	fi
 fi
 
