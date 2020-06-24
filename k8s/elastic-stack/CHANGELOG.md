@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.2 - 2020-06-24
+### Changed
+- Update fluentd chart to v2.4.2
+
 ## 0.5.1 - 2020-04-27
 ### Changed
 - Release 0.5.1
