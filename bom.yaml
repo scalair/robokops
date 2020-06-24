@@ -1,41 +1,47 @@
-version: 0.5.3
+version: 0.9.1
 features:
-  - name: aws-alb-ingress-controller
-    image: scalair/robokops-aws-alb-ingress-controller
-    version: 0.1.0
-  - name: cluster-autoscaler
-    image: scalair/robokops-cluster-autoscaler
-    version: 0.1.0
-  - name: cluster-init
-    image: scalair/robokops-cluster-init
-    version: 0.1.2
-  - name: dashboard
-    image: scalair/robokops-dashboard
-    version: 0.1.0
-  - name: elastic-stack
-    image: scalair/robokops-elastic-stack
-    version: 0.2.0
-  - name: external-dns
-    image: scalair/robokops-external-dns
-    version: 0.1.0
-  - name: gitlabci
-    image: scalair/robokops-gitlabci
-    version: 0.1.0
-  - name: ingress-nginx
-    image: scalair/robokops-ingress-nginx
-    version: 0.1.0
-  - name: jenkins
-    image: scalair/robokops-jenkins
-    version: 0.1.0
-  - name: kubewatch
-    image: scalair/robokops-kubewatch
-    version: 0.1.0
-  - name: monitoring
-    image: scalair/robokops-monitoring
-    version: 0.1.1
-  - name: terraform
-    image: scalair/robokops-terraform
-    version: 0.1.0
-  - name: velero
-    image: scalair/robokops-velero
-    version: 0.1.0
+- name: aws-alb-ingress-controller
+  image: scalair/robokops-aws-alb-ingress-controller
+  version: 0.4.1
+- name: aws-efs-csi-driver
+  image: scalair/robokops-aws-efs-csi-driver
+  version: 0.4.1
+- name: cluster-autoscaler
+  image: scalair/robokops-cluster-autoscaler
+  version: 0.4.1
+- name: cluster-init
+  image: scalair/robokops-cluster-init
+  version: 0.4.1
+- name: dashboard
+  image: scalair/robokops-dashboard
+  version: 0.4.1
+- name: elastic-stack
+  image: scalair/robokops-elastic-stack
+  version: 0.5.1
+- name: external-dns
+  image: scalair/robokops-external-dns
+  version: 0.4.1
+- name: gitlabci
+  image: scalair/robokops-gitlabci
+  version: 0.4.1
+- name: ingress-nginx
+  image: scalair/robokops-ingress-nginx
+  version: 0.4.1
+- name: jenkins
+  image: scalair/robokops-jenkins
+  version: 0.4.1
+- name: kubewatch
+  image: scalair/robokops-kubewatch
+  version: 0.4.1
+- name: monitoring
+  image: scalair/robokops-monitoring
+  version: 0.5.2
+- name: terraform
+  image: scalair/robokops-terraform
+  version: 0.7.1
+- name: vault
+  image: scalair/robokops-vault
+  version: 0.4.1
+- name: velero
+  image: scalair/robokops-velero
+  version: 0.4.1

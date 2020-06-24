@@ -19,11 +19,9 @@ if [ ! -z "${BASIC_AUTH_USERNAME}" ] && [ ! -z "${BASIC_AUTH_PASSWORD}" ]; then
 	htpasswd -cb auth ${BASIC_AUTH_USERNAME} ${BASIC_AUTH_PASSWORD}
 fi
 
-if [ -f /conf/monitoring/monitoring.conf ]; then
-	sempl -s /conf/monitoring/monitoring.conf /conf/monitoring/monitoring.jsonnet monitoring.jsonnet
-else
-	cp /conf/monitoring/monitoring.jsonnet monitoring.jsonnet
-fi
+# Template monitoring.jsonnet file with environment variables if needed
+envsubst < /conf/monitoring/monitoring.jsonnet > monitoring.jsonnet.tmp
+mv monitoring.jsonnet.tmp monitoring.jsonnet
 
 echo "Generating manifests.."
 jsonnet -J vendor -m manifests monitoring.jsonnet | xargs -I{} sh -c 'cat {} | gojsontoyaml > {}.yaml; rm -f {}' -- {}
@@ -40,8 +38,9 @@ if [ -d /conf/monitoring/manifests ]; then
 	for MANIFEST in $(find /tmp/monitoring/manifests/ -name '*.yaml' | sed "s|/tmp/monitoring/||"); do
 		if [ -f /home/builder/src/${MANIFEST} ]; then
 			if [ -f /conf/monitoring/monitoring.conf ]; then
-				echo -e "Templating:\t monitoring/${MANIFEST} with monitoring.conf"
-				sempl -s /conf/monitoring/monitoring.conf /tmp/monitoring/${MANIFEST}
+				echo -e "Templating:\t monitoring/${MANIFEST}"
+				envsubst < /tmp/monitoring/${MANIFEST} > /tmp/monitoring/${MANIFEST}.tmp
+				mv /tmp/monitoring/${MANIFEST}.tmp /tmp/monitoring/${MANIFEST}
 			fi
 			echo -e "Merging:\t monitoring/${MANIFEST} with /home/builder/src/${MANIFEST}"
 			yq m -x -i /home/builder/src/${MANIFEST} /tmp/monitoring/${MANIFEST}

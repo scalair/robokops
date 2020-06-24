@@ -1,8 +1,7 @@
 # Robokops
 ## TL;DR
-```
-go get -u github.com/scalair/robokops
-```
+* Downloald the latest version of Robokops: https://github.com/scalair/robokops/releases/latest
+* Extract the .tar.gz and install it with `make`: `make install`
 ```
 robokops --config example/ --terraform apply --action deploy --target cluster-init --target cluster-autoscaler --target dashboard --target monitoring --target elastic-stack
 ```
@@ -47,11 +46,26 @@ Here is the list of parameters for `robokops`:
 | target      | Targets of the action. If not provided will execute against all matching configuration folders                               | no       |
 | env         | Define environment variables to pass to containers. You can use `--env all` to map all env vars available in your OS context | no       |
 | ssh         | Path of the .ssh directory (use only by Terraform to clone private modules)                                                  | no       |
+| network     | Network mode to use for the containers: default, host, none                                                                  | no       |
 | dev         | Add this flag to use local docker image instead of the remote registry                                                       | no       |
 | version     | Return the installed version of Robokops                                                                                     | no       |
 
 ## Changelog
 See [CHANGELOG.md](CHANGELOG.md)
+
+## Release
+
+### Features
+
+In order to release features, a pull request must be made, with a specific branch format:
+
+- `base/x.y.z` for robokops-base image (*docker/* folder)
+- `terraform/x.y.z` for robokops-terraform image (*terraform/* folder)
+- `<feature name>/x.y.z` for all other features images (*k8s/* folder)
+
+### Robokops
+
+Robokops release is triggered when a tag with `x.y.z` format is pushed.
 
 ## Documentation
 The documentation can be find in [docs](/docs)

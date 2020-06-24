@@ -1,8 +1,8 @@
-FROM scalair/robokops-base:0.1.0
+FROM scalair/robokops-base:0.5.1
 
 # Versions
-ENV TERRAFORM_VERSION=0.12.6
-ENV TERRAGRUNT_VERSION=0.19.16
+ENV TERRAFORM_VERSION=0.12.21
+ENV TERRAGRUNT_VERSION=0.22.5
 
 WORKDIR /tmp
 
@@ -30,8 +30,8 @@ RUN wget -q https://github.com/gruntwork-io/terragrunt/releases/download/v${TERR
 RUN echo "http://dl-5.alpinelinux.org/alpine/edge/testing" | sudo tee -a /etc/apk/repositories && \
     sudo apk --update add keybase-client
 
-# ssh
-RUN sudo apk add openssh && \
+# ssh and openssl
+RUN sudo apk add openssh openssl && \
     mkdir /home/builder/.ssh
 
 WORKDIR /home/builder/src

@@ -4,6 +4,15 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"io"
+	"io/ioutil"
+	"os"
+	"os/signal"
+	"path/filepath"
+	"strings"
+	"syscall"
+	"unsafe"
+
 	"github.com/akamensky/argparse"
 	"github.com/common-nighthawk/go-figure"
 	"github.com/docker/docker/api/types"
@@ -13,14 +22,6 @@ import (
 	"github.com/fatih/color"
 	"github.com/jedib0t/go-pretty/table"
 	"gopkg.in/yaml.v2"
-	"io"
-	"io/ioutil"
-	"os"
-	"os/signal"
-	"path/filepath"
-	"strings"
-	"syscall"
-	"unsafe"
 )
 
 // Global var
@@ -35,12 +36,14 @@ var robokopsVersion string
 var boldGreen *color.Color
 var boldRed *color.Color
 var boldWhite *color.Color
+var boldYellow *color.Color
 
 // Arguments
 var config *string
 var terraformAction *string
 var kubeAction *string
 var ssh *string
+var networkMode *string
 var dev *bool
 var kubeTargets *[]string
 var env *[]string
@@ -48,15 +51,20 @@ var env *[]string
 // Bom struct
 type Bom struct {
 	Version  string
-	Features []Feature
-}
-type Feature struct {
-	Name    string
-	Image   string
-	Version string
+	Features []struct {
+		Name    string
+		Image   string
+		Version string
+	}
 }
 
 func main() {
+	// Define awesome colors
+	boldGreen = color.New(color.FgGreen, color.Bold)
+	boldWhite = color.New(color.FgWhite, color.Bold)
+	boldRed = color.New(color.FgRed, color.Bold)
+	boldYellow = color.New(color.FgYellow, color.Bold)
+
 	// Parse the command line arguments..
 	argParse()
 	// Parse the bom.yaml file
@@ -95,6 +103,7 @@ func argParse() {
 	terraformAction = parser.String("T", "terraform", &argparse.Options{Required: false, Help: "Plan, apply or destroy infrastructure. Choose between: plan|apply|destroy"})
 	kubeAction = parser.String("a", "action", &argparse.Options{Required: false, Help: "Action to execute. Choose between: deploy|delete|dry-run"})
 	ssh = parser.String("s", "ssh", &argparse.Options{Required: false, Help: "Path of the .ssh directory (use only by Terraform to clone private modules)"})
+	networkMode = parser.String("n", "network", &argparse.Options{Required: false, Default: "default", Help: "Network mode to use for the containers: default, host, none"})
 	dev = parser.Flag("d", "dev", &argparse.Options{Required: false, Help: "Add this flag to use local docker image instead of the remote registry"})
 	kubeTargets = parser.List("t", "target", &argparse.Options{Required: false, Help: "Target of the action. If not provided will execute against all matching configuration"})
 	env = parser.List("e", "env", &argparse.Options{Required: false, Help: "Define environment variables to pass to containers. You can use \"--env all\" to map all env vars available in your OS context"})
@@ -133,9 +142,10 @@ func parseBom() {
 	var err error
 	var source []byte
 	if _, err := os.Stat("bom.yaml"); err == nil {
+		boldYellow.Println("Warning: Reading bom.yaml file from current directory")
 		source, err = ioutil.ReadFile("bom.yaml")
-	} else if _, err := os.Stat(os.Getenv("GOPATH") + "/src/github.com/scalair/robokops/bom.yaml"); err == nil {
-		source, err = ioutil.ReadFile(os.Getenv("GOPATH") + "/src/github.com/scalair/robokops/bom.yaml")
+	} else if _, err := os.Stat("/etc/robokops/bom.yaml"); err == nil {
+		source, err = ioutil.ReadFile("/etc/robokops/bom.yaml")
 	} else {
 		ppError("Cannot find bom.yaml file", err)
 	}
@@ -168,6 +178,8 @@ func initialise() {
 		"external-dns",
 		"ingress-nginx",
 		"aws-alb-ingress-controller",
+		"vault",
+		"aws-efs-csi-driver",
 		"gitlabci",
 		"dashboard",
 		"velero",
@@ -191,11 +203,6 @@ func initialise() {
 	if err != nil {
 		ppError("Failed to use docker client. Make sure docker is installed and running.", err)
 	}
-
-	// Define awesome colors
-	boldGreen = color.New(color.FgGreen, color.Bold)
-	boldWhite = color.New(color.FgWhite, color.Bold)
-	boldRed = color.New(color.FgRed, color.Bold)
 
 	setTerminalWidth()
 }
@@ -308,7 +315,8 @@ func runContainer(feature string, action string, binds []string) {
 			Env:   *env,
 		},
 		&container.HostConfig{
-			Binds: binds,
+			Binds:       binds,
+			NetworkMode: container.NetworkMode(*networkMode),
 		},
 		nil,
 		"",

@@ -1,4 +1,4 @@
-FROM scalair/robokops-base:0.1.0
+FROM scalair/robokops-base:0.5.1
 COPY src /home/builder/src
 RUN sudo chown -R builder:builder /home/builder
 RUN echo 'kubewatch' | sudo tee /name

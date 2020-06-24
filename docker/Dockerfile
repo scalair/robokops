@@ -1,13 +1,15 @@
 FROM golang:alpine3.10
 
 # https://pypi.org/project/awscli/
-ENV AWSCLI_VERSION=1.16.197
+ENV AWSCLI_VERSION=1.17.0
 # https://docs.aws.amazon.com/eks/latest/userguide/install-aws-iam-authenticator.html
 ENV AWS_IAM_AUTHENTICATOR=1.13.7
+# https://github.com/GoogleCloudPlatform/cloud-sdk-docker
+ENV GCLOUD_SDK_VERSION=281.0.0
 # https://aur.archlinux.org/packages/kubectl-bin/
 ENV KUBECTL_VERSION=1.15.0
 # https://github.com/kubernetes/helm/releases
-ENV HELM_VERSION=2.12.3
+ENV HELM_VERSION=2.16.1
 # https://releases.hashicorp.com/vault/
 ENV VAULT_VERSION=0.11.6
 # https://github.com/krallin/tini
@@ -26,7 +28,7 @@ RUN sudo ln -sf /usr/share/zoneinfo/Etc/UTC /etc/localtime
 
 # Install base and dev packages
 RUN sudo apk update && \
-	sudo apk add bash curl ca-certificates unzip git expect tini apache2-utils bison flex
+	sudo apk add bash curl ca-certificates unzip git expect tini apache2-utils bison flex gettext
 
 # aws-cli
 RUN sudo apk -Uuv add groff less python python-dev py-pip build-base && \
@@ -37,6 +39,16 @@ RUN sudo apk -Uuv add groff less python python-dev py-pip build-base && \
 # aws-iam-authenticator
 RUN sudo wget -q https://amazon-eks.s3-us-west-2.amazonaws.com/${AWS_IAM_AUTHENTICATOR}/2019-06-11/bin/linux/amd64/aws-iam-authenticator -O /usr/local/bin/aws-iam-authenticator && \
 	sudo chmod +x /usr/local/bin/aws-iam-authenticator
+
+# gcloud
+ENV PATH /google-cloud-sdk/bin:$PATH
+RUN curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${GCLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
+    tar xzf google-cloud-sdk-${GCLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
+	sudo mv google-cloud-sdk / && \
+    rm google-cloud-sdk-${GCLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
+    gcloud config set core/disable_usage_reporting true && \
+    gcloud config set component_manager/disable_update_check true && \
+    gcloud config set metrics/environment github_docker_image
 
 # kubectl
 RUN sudo wget -q https://storage.googleapis.com/kubernetes-release/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl -O /usr/local/bin/kubectl && \
@@ -50,23 +62,14 @@ RUN sudo wget -q https://storage.googleapis.com/kubernetes-helm/helm-v${HELM_VER
 	sudo chmod +x /usr/local/bin/helm
 
 # vault
-# TODO: this CA is specific to Scalair Vault. We should use a publicly signed CA instead
-COPY vault/ca.crt.pem /usr/share/ca-certificates/ca.crt.pem
-
 RUN sudo wget -q https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_linux_amd64.zip && \
 	sudo unzip -q vault_${VAULT_VERSION}_linux_amd64.zip && \
 	sudo mv vault /usr/bin/vault && \
-	sudo rm -f vault_${VAULT_VERSION}_linux_amd64.zip && \
-	echo "ca.crt.pem" | sudo tee -a /etc/ca-certificates.conf && \
-	sudo update-ca-certificates
+	sudo rm -f vault_${VAULT_VERSION}_linux_amd64.zip
 
 # yq
-RUN go get gopkg.in/mikefarah/yq.v2 && \
-	sudo ln -s /go/bin/yq.v2 /usr/local/bin/yq
-
-# sempl (https://github.com/nextrevision/sempl)
-RUN sudo wget -q https://github.com/nextrevision/sempl/raw/master/sempl -O /usr/local/bin/sempl && \
-	sudo chmod +x /usr/local/bin/sempl
+RUN sudo curl -L https://github.com/mikefarah/yq/releases/download/2.4.1/yq_linux_amd64 -o /usr/bin/yq && \
+    sudo chmod +x /usr/bin/yq
 
 # boxes (https://boxes.thomasjensen.com/)
 RUN sudo wget -q https://github.com/ascii-boxes/boxes/archive/v1.3.zip -O boxes-1.3.zip && \

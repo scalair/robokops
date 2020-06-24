@@ -9,22 +9,35 @@ fi
 FEATURE_NAME=$(cat /name)
 ACTION=$1
 
+
+# Load custom configuration and authenticate to the cluster
+echo "Load custom configuration and authenticate to the cluster" | boxes -d shell -p l4r4
+if [ -f /conf/common.conf ]; then
+	source /conf/common.conf
+fi
+if [ -f /conf/${FEATURE_NAME}/${FEATURE_NAME}.conf ]; then
+	source /conf/${FEATURE_NAME}/${FEATURE_NAME}.conf
+fi
+if [ -f /conf/cluster-login.sh ]; then
+	/conf/cluster-login.sh
+fi
+
 # Customise manifests
 if [ -d /conf/${FEATURE_NAME} ]; then
 	echo "Updating manifests with custom configurations" | boxes -d shell -p l4r4
 	# Since /conf is a docker volume, we have to copy everything before making changes
 	cp -r /conf/${FEATURE_NAME} /tmp
 	for MANIFEST in $(find /tmp/${FEATURE_NAME}/ -name '*.yaml' | sed "s|/tmp/${FEATURE_NAME}/||"); do
-		if [ -f /conf/${FEATURE_NAME}/${FEATURE_NAME}.conf ]; then
-			echo -e "Templating:\t ${FEATURE_NAME}/${MANIFEST} with ${FEATURE_NAME}.conf"
-			sempl -s /conf/${FEATURE_NAME}/${FEATURE_NAME}.conf /tmp/${FEATURE_NAME}/${MANIFEST}
-		fi
+		echo -e "Templating:\t /tmp/${FEATURE_NAME}/${MANIFEST}"
+		envsubst < /tmp/${FEATURE_NAME}/${MANIFEST} > /tmp/${FEATURE_NAME}/${MANIFEST}.tmp
+		mv /tmp/${FEATURE_NAME}/${MANIFEST}.tmp /tmp/${FEATURE_NAME}/${MANIFEST}
 		if [ -f /home/builder/src/${MANIFEST} ]; then
-			echo -e "Merging:\t ${FEATURE_NAME}/${MANIFEST} with /home/builder/src/${MANIFEST}"
+			echo -e "Merging:\t /tmp/${FEATURE_NAME}/${MANIFEST} with /home/builder/src/${MANIFEST}"
 			yq m -x -i /home/builder/src/${MANIFEST} /tmp/${FEATURE_NAME}/${MANIFEST}
 		else
-			echo -e "Copying:\t ${FEATURE_NAME}/${MANIFEST} into /home/builder/src/${MANIFEST}"
-			cp -r /tmp/${FEATURE_NAME}/${MANIFEST} /home/builder/src/${MANIFEST}
+			echo -e "Copying:\t /tmp/${FEATURE_NAME}/${MANIFEST} into /home/builder/src/${MANIFEST}"
+                        mkdir -p /home/builder/src/$(dirname ${MANIFEST})
+			cp /tmp/${FEATURE_NAME}/${MANIFEST} /home/builder/src/${MANIFEST}
 		fi
 	done
 fi
@@ -44,18 +57,6 @@ if [ "$ACTION" = "dry-run" ]; then
 	exit 0
 fi
 
-# Load custom configuration and authenticate to the cluster
-echo "Load custom configuration and authenticate to the cluster" | boxes -d shell -p l4r4
-if [ -f /conf/common.conf ]; then
-	source /conf/common.conf
-fi
-if [ -f /conf/${FEATURE_NAME}/${FEATURE_NAME}.conf ]; then
-	source /conf/${FEATURE_NAME}/${FEATURE_NAME}.conf
-fi
-if [ -f /conf/cluster-login.sh ]; then
-	/conf/cluster-login.sh
-fi
-
 # Helm setup (cluster-init will install tiller in the cluster so we don't do anything here)
 if [ ${FEATURE_NAME} != "cluster-init" ]; then
 	echo "Configuring Helm" | boxes -d shell -p l4r4
@@ -67,7 +68,7 @@ fi
 if [ -d /tmp/${FEATURE_NAME}/pre-manifests ]; then
 	if [ "$ACTION" = "delete" ]; then
 		echo "Deleting pre-manifests" | boxes -d shell -p l4r4
-		kubectl delete -f /tmp/${FEATURE_NAME}/pre-manifests
+		kubectl delete -f /tmp/${FEATURE_NAME}/pre-manifests --ignore-not-found
 	else
 		echo "Applying pre-manifests" | boxes -d shell -p l4r4
 		kubectl apply -f /tmp/${FEATURE_NAME}/pre-manifests
@@ -78,7 +79,7 @@ fi
 if [ -d /tmp/${FEATURE_NAME}/post-manifests ]; then
 	if [ "$ACTION" = "delete" ]; then
 		echo "Deleting post-manifests" | boxes -d shell -p l4r4
-		kubectl delete -f /tmp/${FEATURE_NAME}/post-manifests
+		kubectl delete -f /tmp/${FEATURE_NAME}/post-manifests --ignore-not-found
 	fi
 fi
 

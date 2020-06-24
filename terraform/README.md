@@ -1,6 +1,6 @@
-# Terrafrom
-Robokops container packed with Terragrunt and Terraform that can be used to easily create and destroy clusters. This can make sens if you want to automatically create a cluster in the morning and destroy it in the evening.
-If you already have a cluster, or if you are not planning to make changes very often to it then it probably won't make sens to use that feature.
+# Terraform
+Robokops container packed with Terragrunt and Terraform that can be used to easily create and destroy clusters. This can make sense if you want to automatically create a cluster in the morning and destroy it in the evening.
+If you already have a cluster, or if you are not planning to make changes very often to it then it probably won't make sense to use that feature.
 
 ## Entrypoint
 You can run Terraform with the same action that you would normaly do:
