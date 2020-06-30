@@ -129,7 +129,7 @@ configMaps:
       logstash_format true
       logstash_prefix fluentd
       # Set to true to log 400 errors
-      log_es_400_reason false
+      log_es_400_reason true
       <buffer>
         @type file
         path /var/log/fluentd-buffers/kubernetes.system.buffer
