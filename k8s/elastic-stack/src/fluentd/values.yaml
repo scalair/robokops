@@ -128,7 +128,6 @@ configMaps:
       ssl_version "#{ENV['OUTPUT_SSL_VERSION']}"
       logstash_format true
       logstash_prefix fluentd
-      # Set to true to log 400 errors
       log_es_400_reason true
       <buffer>
         @type file
