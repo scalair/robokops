@@ -17,7 +17,7 @@ features:
   version: 0.4.1
 - name: elastic-stack
   image: scalair/robokops-elastic-stack
-  version: 0.5.2
+  version: 0.5.3
 - name: external-dns
   image: scalair/robokops-external-dns
   version: 0.4.1

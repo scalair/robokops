@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.3 - 2020-07-08
+### Changed
+- fluentd: enhance error logs when it fails to push logs to elasticsearch
+
 ## 0.5.2 - 2020-06-24
 ### Changed
 - Update fluentd chart to v2.4.2
