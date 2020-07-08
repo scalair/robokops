@@ -13,6 +13,7 @@ In order to enable this process, the branch must be named precisely:
 # example
 velero/0.4.1
 ```
+The version follows the semantic versioning convention, and in order to know the next version to apply, read the feature `CHANGELOG.md`.
 
 Important :
 - Update the `CHANGELOG.md` of the feature before merging the branch
