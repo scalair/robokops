@@ -1,21 +1,11 @@
 image:
-  repository: docker.elastic.co/beats/metricbeat-oss
-  tag: 7.8.0
-  #tag: 6.7.0
+  repository: docker.elastic.co/beats/metricbeat
+  tag: 6.7.0
   pullPolicy: IfNotPresent
-
-service:
-  enabled: true
-  type: ClusterIP
-  ports:
-    - name: "forward"
-      protocol: TCP
-      containerPort: 9201
-      port: 9201
 
 # The instances created by daemonset retrieve most metrics from the host
 daemonset:
-  enabled: false
+  enabled: true
   podAnnotations: []
   priorityClassName: ""
   tolerations:
@@ -110,41 +100,22 @@ deployment:
       rotate_every_kb: 10000
       number_of_files: 5
   # If overrideConfig is not empty, metricbeat chart's default config won't be used at all.
-  overrideConfig:
-    metricbeat.config:
-      modules:
-        path: ${path.config}/modules.d/*.yml
-        reload.enabled: false
-    output.elasticsearch:
-      hosts:
-      - elasticsearch-client.elastic-stack:9200
-    processors:
-    - add_cloud_metadata: null
+  overrideConfig: {}
   modules:
     kubernetes:
-      enabled: false
-   # kubernetes:
-   #   enabled: true
-   #   config:
-   #     - module: kubernetes
-   #       metricsets:
-   #         - state_node
-   #         - state_deployment
-   #         - state_replicaset
-   #         - state_pod
-   #         - state_container
-   #         # Uncomment this to get k8s events:
-   #         # - event
-   #       period: 10s
-   #       hosts: ["kube-state-metrics:8443"]
-    prometheus:
       enabled: true
       config:
-        - module: prometheus
+        - module: kubernetes
           metricsets:
-            - "remote_write"
-          host: "0.0.0.0"
-          port: "9201"
+            - state_node
+            - state_deployment
+            - state_replicaset
+            - state_pod
+            - state_container
+            # Uncomment this to get k8s events:
+            # - event
+          period: 10s
+          hosts: ["kube-state-metrics:8080"]
   # If overrideModules is not empty, metricbeat chart's default modules won't be used at all.
   overrideModules: {}
 

@@ -1,0 +1,19 @@
+{{- if .Values.service.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "metricbeat.fullname" . }}
+  labels:
+    app: {{ template "metricbeat.name" . }}
+    chart: {{ template "metricbeat.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  selector:
+    app: {{ template "metricbeat.name" . }}
+    release: {{ .Release.Name }}
+{{- if .Values.service.ports }}
+  ports:
+{{ toYaml .Values.service.ports | indent 6 }}
+{{- end }}
+{{- end }}
