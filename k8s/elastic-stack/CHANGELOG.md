@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.4 - 2020-10-28
+### Changed
+- Release 0.5.4
+
 ## 0.5.3 - 2020-07-08
 ### Changed
 - fluentd: enhance error logs when it fails to push logs to elasticsearch
