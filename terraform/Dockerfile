@@ -1,4 +1,4 @@
-FROM scalair/robokops-base:0.5.1
+FROM scalair/robokops-base:0.5.2
 
 # Versions
 ENV TERRAFORM_VERSION=0.12.21
