@@ -88,8 +88,15 @@ if [ -f /conf/${FEATURE_NAME}/pre-$ACTION.sh ]; then
 	echo "Run pre-$ACTION.sh" | boxes -d shell -p l4r4
 	/conf/${FEATURE_NAME}/pre-$ACTION.sh
 fi
-echo "Running $ACTION.sh" | boxes -d shell -p l4r4
-/home/builder/src/$ACTION.sh
+
+if [ -f /conf/${FEATURE_NAME}/$ACTION.sh ]; then
+	echo "Run $ACTION.sh" | boxes -d shell -p l4r4
+	/conf/${FEATURE_NAME}/$ACTION.sh
+else
+	echo "Running $ACTION.sh" | boxes -d shell -p l4r4
+	/home/builder/src/$ACTION.sh
+fi
+
 if [ -f /conf/${FEATURE_NAME}/post-$ACTION.sh ]; then
 	echo "Run post-$ACTION.sh" | boxes -d shell -p l4r4
 	/conf/${FEATURE_NAME}/post-$ACTION.sh
