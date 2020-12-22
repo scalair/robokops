@@ -29,7 +29,7 @@ features:
   version: 0.4.3
 - name: jenkins
   image: scalair/robokops-jenkins
-  version: 0.4.2
+  version: 0.4.3
 - name: kubewatch
   image: scalair/robokops-kubewatch
   version: 0.4.2
