@@ -1,6 +1,12 @@
 # Changelog
 
+## 0.5.3 - 2020-12-22
+### Fixed
+ - Fixed helm repo issue. Adding helm stable repo manually
+
 ## 0.5.1 - 2020-04-27
+### Fixed
+- Failed manifest deletion caused other silent failures
 ### Fixed
 - Failed manifest deletion caused other silent failures
 
