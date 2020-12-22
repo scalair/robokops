@@ -9,7 +9,7 @@ ENV GCLOUD_SDK_VERSION=281.0.0
 # https://aur.archlinux.org/packages/kubectl-bin/
 ENV KUBECTL_VERSION=1.15.0
 # https://github.com/kubernetes/helm/releases
-ENV HELM_VERSION=2.16.1
+ENV HELM_VERSION=2.17.0
 # https://releases.hashicorp.com/vault/
 ENV VAULT_VERSION=0.11.6
 # https://github.com/krallin/tini
