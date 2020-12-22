@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.4 - 2020-12-22
+### Changed
+- Release 0.4.4
+
 ## 0.4.3 - 2020-12-22
 ### Changed
 - Release 0.4.3
