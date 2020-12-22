@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.7.3 - 2020-12-22
+### Changed
+- Release 0.7.3
+
 ## 0.7.2 - 2020-12-22
 ### Changed
 - Release 0.7.2
