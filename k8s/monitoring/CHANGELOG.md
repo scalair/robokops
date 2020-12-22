@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.3 - 2020-12-22
+### Changed
+- Release 0.5.3
+
 ## 0.5.3 - 2020-10-28
 ### Changed
 - Release 0.5.3
