@@ -62,6 +62,7 @@ if [ ${FEATURE_NAME} != "cluster-init" ]; then
 	echo "Configuring Helm" | boxes -d shell -p l4r4
 	helm init --client-only
 	helm repo update
+	helm repo add stable https://charts.helm.sh/stable
 fi
 
 # Apply pre-manifests if present
