@@ -1,16 +1,20 @@
 {
   /**
-   * Return a CloudWatch Target
+   * Creates a [CloudWatch target](https://grafana.com/docs/grafana/latest/features/datasources/cloudwatch/)
+   *
+   * @name cloudwatch.target
    *
    * @param region
    * @param namespace
    * @param metric
-   * @param datasource
-   * @param statistic
-   * @param alias
-   * @param highResolution
-   * @param period
-   * @param dimensions
+   * @param datasource (optional)
+   * @param statistic (default: `'Average'`)
+   * @param alias (optional)
+   * @param highResolution (default: `false`)
+   * @param period (default: `'1m'`)
+   * @param dimensions (optional)
+   * @param id (optional)
+   * @param expression (optional)
 
    * @return Panel target
    */
@@ -24,7 +28,9 @@
     alias=null,
     highResolution=false,
     period='1m',
-    dimensions={}
+    dimensions={},
+    id=null,
+    expression=null
   ):: {
     region: region,
     namespace: namespace,
@@ -35,5 +41,8 @@
     highResolution: highResolution,
     period: period,
     dimensions: dimensions,
+    [if id != null then 'id']: id,
+    [if expression != null then 'expression']: expression,
+
   },
 }

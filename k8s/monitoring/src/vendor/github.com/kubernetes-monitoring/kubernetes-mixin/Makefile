@@ -1,4 +1,11 @@
-JSONNET_FMT := jsonnet fmt -n 2 --max-blank-lines 2 --string-style s --comment-style s
+JSONNET_ARGS := -n 2 --max-blank-lines 2 --string-style s --comment-style s
+ifneq (,$(shell which jsonnetfmt))
+	JSONNET_FMT_CMD := jsonnetfmt
+else
+	JSONNET_FMT_CMD := jsonnet
+	JSONNET_FMT_ARGS := fmt $(JSONNET_ARGS)
+endif
+JSONNET_FMT := $(JSONNET_FMT_CMD) $(JSONNET_FMT_ARGS)
 
 all: fmt prometheus_alerts.yaml prometheus_rules.yaml dashboards_out lint test
 
@@ -7,10 +14,10 @@ fmt:
 		xargs -n 1 -- $(JSONNET_FMT) -i
 
 prometheus_alerts.yaml: mixin.libsonnet lib/alerts.jsonnet alerts/*.libsonnet
-	jsonnet -S lib/alerts.jsonnet > $@
+	jsonnet -J vendor -S lib/alerts.jsonnet > $@
 
 prometheus_rules.yaml: mixin.libsonnet lib/rules.jsonnet rules/*.libsonnet
-	jsonnet -S lib/rules.jsonnet > $@
+	jsonnet -J vendor -S lib/rules.jsonnet > $@
 
 dashboards_out: mixin.libsonnet lib/dashboards.jsonnet dashboards/*.libsonnet
 	@mkdir -p dashboards_out

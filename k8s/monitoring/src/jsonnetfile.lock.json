@@ -8,8 +8,8 @@
           "subdir": "grafana"
         }
       },
-      "version": "57b4365eacda291b82e0d55ba7eec573a8198dda",
-      "sum": "92DWADwGjnCfpZaL7Q07C0GZayxBziGla/O03qWea34="
+      "version": "014301fd5f71d8305a395b2fb437089a7b1a3999",
+      "sum": "RHtpk2c0CcliWyt6F4DIgwpi4cEfHADK7nAxIw6RTGs="
     },
     {
       "source": {
@@ -38,8 +38,8 @@
           "subdir": "grafonnet"
         }
       },
-      "version": "db36a706bd1c87056759eacb686102133eb4740c",
-      "sum": "g1aMw5iYEP/Dkw1wo1pcfe7q4LIpXc4wqDZsjaCpsRc="
+      "version": "aa3a5412cdecc48f18082e8de7ddd6cc25dab745",
+      "sum": "GTW0qSr8d5rTXYm72ETrUeFSGTZHI5BtquLizOvBU6s="
     },
     {
       "source": {
@@ -48,18 +48,8 @@
           "subdir": "grafana-builder"
         }
       },
-      "version": "eb8bc1cc4765ca752d390fdadc521df0973da778",
-      "sum": "9/eJqljTTtJeq9QRjabdKWL6yD8a7VzLmGKBK3ir77k="
-    },
-    {
-      "source": {
-        "git": {
-          "remote": "https://github.com/kausalco/public.git",
-          "subdir": "grafana-builder"
-        }
-      },
-      "version": "c19a92e586a6752f11745b47f309b13f02ef7147",
-      "sum": "slxrtftVDiTlQK22ertdfrg4Epnq97gdrLI63ftUfaE="
+      "version": "fd1d2f7e962560e3a20abfed161c70f91c991964",
+      "sum": "EmHrmBY8PbnV0BKXmVWvAEmax6eglRinKSyZbTmVWuc="
     },
     {
       "source": {
@@ -79,8 +69,8 @@
           "subdir": ""
         }
       },
-      "version": "0ee0da08a9691201a118d30f6b396381c2c8d017",
-      "sum": "r+ibLhIoXzEWGXUCntSd44IRxeopnZkFfZ0OGZR2s1U="
+      "version": "1941868d86a7c37e5505a14e3d567bda90e80357",
+      "sum": "ypWxhZVFWF53k7qIkSpUvnI6IGyFBNKmgrzjNtLwMIM="
     },
     {
       "source": {

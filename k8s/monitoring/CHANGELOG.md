@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.1 - 2021-01-14
+### Changed
+- Release 0.6.1
+
+## 0.6.0 - 2021-01-14
+### Changed
+- Release 0.6.0
+
 ## 0.5.5 - 2020-12-22
 ### Changed
 - Release 0.5.5
