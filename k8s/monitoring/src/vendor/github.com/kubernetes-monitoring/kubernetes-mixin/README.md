@@ -1,4 +1,5 @@
 # Prometheus Monitoring Mixin for Kubernetes
+[![CircleCI](https://circleci.com/gh/kubernetes-monitoring/kubernetes-mixin/tree/master.svg?style=shield)](https://circleci.com/gh/kubernetes-monitoring/kubernetes-mixin)
 
 > NOTE: This project is *pre-release* stage. Flags, configuration, behaviour and design may change significantly in following releases.
 
@@ -6,13 +7,24 @@ A set of Grafana dashboards and Prometheus alerts for Kubernetes.
 
 ## Releases
 
-| Release | Kubernetes Compatibility   |
-| ------- | -------------------------- |
-| master  | Kubernetes 1.14+           |
-| v0.1.x  | Kubernetes 1.13 and before |
+| Release branch | Kubernetes Compatibility   | Prometheus Compatibility |
+| ------- | -------------------------- | ------------------------ |
+| release-0.1  | v1.13 and before   |           |
+| release-0.2  | v1.14.1 and before | v2.11.0+  |
+| release-0.3  | v1.17 and before   | v2.11.0+  |
+| release-0.4  | v1.18              | v2.11.0+  |
+| release-0.5  | v1.19              | v2.11.0+  |
+| release-0.6  | v1.19+             | v2.11.0+  |
+| master       | v1.19+             | v2.11.0+  |
 
-In Kubernetes 1.14 there was a major [metrics overhaul](https://github.com/kubernetes/enhancements/blob/master/keps/sig-instrumentation/0031-kubernetes-metrics-overhaul.md) implemented.
+In Kubernetes 1.14 there was a major [metrics overhaul](https://github.com/kubernetes/enhancements/issues/1206) implemented.
 Therefore v0.1.x of this repository is the last release to support Kubernetes 1.13 and previous version on a best effort basis.
+
+Some alerts now use Prometheus filters made available in Prometheus 2.11.0, which makes this version of Prometheus a dependency.
+
+Warning: This compatibility matrix was initially created based on experience, we do not guarantee the compatibility, it may be updated based on new learnings. 
+
+Warning: By default the expressions will generate *grafana 7.2+* compatible rules using the *$__rate_interval* variable for rate functions. If you need backward compatible rules please set *grafana72: false* in your *_config*
 
 ## How to use
 
@@ -73,6 +85,13 @@ Steps to configure wmi_exporter
 ```
 3) Update the Prometheus server to scrap the metrics from wmi_exporter endpoint.
 
+## Running the tests
+
+Build the mixins, run the tests:
+
+```
+$ docker run -v $(pwd):/tmp --entrypoint "/bin/promtool" prom/prometheus:latest test rules /tmp/tests.yaml
+```
 
 ## Using with prometheus-ksonnet
 
@@ -159,8 +178,10 @@ kubernetes {
     cadvisorSelector: 'job="kubernetes-cadvisor"',
     nodeExporterSelector: 'job="kubernetes-node-exporter"',
     kubeletSelector: 'job="kubernetes-kubelet"',
-    grafanaK8s.dashboardNamePrefix: 'Mixin / ',
-    grafanaK8s.dashboardTags: ['kubernetes', 'infrastucture'],
+    grafanaK8s+:: {
+      dashboardNamePrefix: 'Mixin / ',
+      dashboardTags: ['kubernetes', 'infrastucture'],
+    },
   },
 }
 ```
@@ -180,8 +201,61 @@ $ jsonnet -J vendor -S -e 'std.manifestYamlDoc((import "mixin.libsonnet").promet
 $ jsonnet -J vendor -m files/dashboards -e '(import "mixin.libsonnet").grafanaDashboards'
 ```
 
+### Customising alert annotations
+
+The steps described bellow extend on the existing mixin library without modifying the original git repository. This is to make consuming updates to your extended alert definitions easier. These definitions can reside outside of this repository and added to your own custom location, where you can define your alert dependencies in your `jsonnetfile.json` and add customisations to the existing definitions.
+
+In your working directory, create a new file `kubernetes_mixin_override.libsonnet` with the following:
+
+```
+local utils = import 'lib/utils.libsonnet';
+(import 'mixin.libsonnet') +
+(
+  {
+    prometheusAlerts+::
+      // The specialAlerts can be in any other config file
+      local slack = 'observability';
+      local specialAlerts = {
+        KubePodCrashLooping: { slack_channel: slack },
+        KubePodNotReady: { slack_channel: slack },
+      };
+
+      local addExtraAnnotations(rule) = rule {
+        [if 'alert' in rule then 'annotations']+: {
+          dashboard: 'https://foo.bar.co',
+          [if rule.alert in specialAlerts then 'slack_channel']: specialAlerts[rule.alert].slack_channel,
+        },
+      };
+      utils.mapRuleGroups(addExtraAnnotations),
+  }
+)
+```
+Create new file: `lib/kubernetes_customised_alerts.jsonnet` with the following:
+
+```
+std.manifestYamlDoc((import '../kubernetes_mixin_override.libsonnet').prometheusAlerts)
+```
+Running `jsonnet -S lib/kubernetes_customised_alerts.jsonnet` will build the alerts with your customisations.
+
+Same result can be achieved by modyfying the existing `config.libsonnet` with the content of `kubernetes_mixin_override.libsonnet`.
+
 ## Background
+
+### Alert Severities
+While the community has not yet fully agreed on alert severities and their to be used, this repository assumes the following paradigms when setting the severities:
+
+* Critical: An issue, that needs to page a person to take instant action
+* Warning: An issue, that needs to be worked on but in the regular work queue or for during office hours rather than paging the oncall
+* Info: Is meant to support a trouble shooting process by informing about a non-normal situation for one or more systems but not worth a page or ticket on its own.
+
+
+### Architecture and Technical Decisions
 
 * For more motivation, see
 "[The RED Method: How to instrument your services](https://kccncna17.sched.com/event/CU8K/the-red-method-how-to-instrument-your-services-b-tom-wilkie-kausal?iframe=no&w=100%&sidebar=yes&bg=no)" talk from CloudNativeCon Austin.
 * For more information about monitoring mixins, see this [design doc](https://docs.google.com/document/d/1A9xvzwqnFVSOZ5fD3blKODXfsat5fg6ZhnKu9LK3lB4/edit#).
+
+## Note
+
+You can use the external tool call [prom-metrics-check](https://github.com/ContainerSolutions/prom-metrics-check) to validate the created dashboards. This tool allows you to check if the metrics installed and used in Grafana dashboards exist in the Prometheus instance. 
+Please have a look at https://github.com/ContainerSolutions/prom-metrics-check.

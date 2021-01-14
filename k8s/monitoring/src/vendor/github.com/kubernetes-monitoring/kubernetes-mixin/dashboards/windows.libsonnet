@@ -1,4 +1,4 @@
-local grafana = import 'grafonnet/grafana.libsonnet';
+local grafana = import 'github.com/grafana/grafonnet-lib/grafonnet/grafana.libsonnet';
 local dashboard = grafana.dashboard;
 local row = grafana.row;
 local prometheus = grafana.prometheus;
@@ -7,7 +7,7 @@ local graphPanel = grafana.graphPanel;
 local promgrafonnet = import '../lib/promgrafonnet/promgrafonnet.libsonnet';
 local numbersinglestat = promgrafonnet.numbersinglestat;
 local gauge = promgrafonnet.gauge;
-local g = import 'grafana-builder/grafana.libsonnet';
+local g = import 'github.com/grafana/jsonnet-libs/grafana-builder/grafana.libsonnet';
 
 {
   grafanaDashboards+:: {
@@ -26,8 +26,8 @@ local g = import 'grafana-builder/grafana.libsonnet';
       ).addTemplate(
         {
           current: {
-            text: 'Prometheus',
-            value: 'Prometheus',
+            text: 'default',
+            value: 'default',
           },
           hide: 0,
           label: null,
@@ -47,7 +47,7 @@ local g = import 'grafana-builder/grafana.libsonnet';
          })
         .addPanel(
           g.panel('CPU Utilisation') +
-          g.statPanel('1 - avg(rate(wmi_cpu_time_total{mode="idle"}[1m]))')
+          g.statPanel('1 - avg(rate(windows_cpu_time_total{mode="idle"}[1m]))')
         )
         .addPanel(
           g.panel('CPU Requests Commitment') +
@@ -143,8 +143,8 @@ local g = import 'grafana-builder/grafana.libsonnet';
       ).addTemplate(
         {
           current: {
-            text: 'Prometheus',
-            value: 'Prometheus',
+            text: 'default',
+            value: 'default',
           },
           hide: 0,
           label: null,
@@ -163,6 +163,7 @@ local g = import 'grafana-builder/grafana.libsonnet';
           'label_values(windows_container_available, namespace)',
           label='Namespace',
           refresh='time',
+          sort=1,
         )
       )
       .addRow(
@@ -235,8 +236,8 @@ local g = import 'grafana-builder/grafana.libsonnet';
       ).addTemplate(
         {
           current: {
-            text: 'Prometheus',
-            value: 'Prometheus',
+            text: 'default',
+            value: 'default',
           },
           hide: 0,
           label: null,
@@ -255,6 +256,7 @@ local g = import 'grafana-builder/grafana.libsonnet';
           'label_values(windows_container_available, namespace)',
           label='Namespace',
           refresh='time',
+          sort=1,
         )
       )
       .addTemplate(
@@ -264,6 +266,7 @@ local g = import 'grafana-builder/grafana.libsonnet';
           'label_values(windows_container_available{namespace="$namespace"}, pod)',
           label='Pod',
           refresh='time',
+          sort=1,
         )
       )
       .addRow(
@@ -334,11 +337,11 @@ local g = import 'grafana-builder/grafana.libsonnet';
             legend_avg=true,
           )
           .addTarget(prometheus.target(
-            'sort_desc(sum by (container) (rate(windows_container_network_receive_bytes_total{namespace="$namespace", pod="$pod"}[1m])))' % $._config,
+            'sort_desc(sum by (container) (rate(windows_container_network_received_bytes_total{namespace="$namespace", pod="$pod"}[1m])))' % $._config,
             legendFormat='Received : {{ container }}',
           ))
           .addTarget(prometheus.target(
-            'sort_desc(sum by (container) (rate(windows_container_network_transmit_bytes_total{namespace="$namespace", pod="$pod"}[1m])))' % $._config,
+            'sort_desc(sum by (container) (rate(windows_container_network_transmitted_bytes_total{namespace="$namespace", pod="$pod"}[1m])))' % $._config,
             legendFormat='Transmitted : {{ container }}',
           ))
         )
@@ -354,8 +357,8 @@ local g = import 'grafana-builder/grafana.libsonnet';
       ).addTemplate(
         {
           current: {
-            text: 'Prometheus',
-            value: 'Prometheus',
+            text: 'default',
+            value: 'default',
           },
           hide: 0,
           label: null,
@@ -439,8 +442,8 @@ local g = import 'grafana-builder/grafana.libsonnet';
       ).addTemplate(
         {
           current: {
-            text: 'Prometheus',
-            value: 'Prometheus',
+            text: 'default',
+            value: 'default',
           },
           hide: 0,
           label: null,
@@ -456,9 +459,10 @@ local g = import 'grafana-builder/grafana.libsonnet';
         template.new(
           'instance',
           '$datasource',
-          'label_values(wmi_system_system_up_time, instance)',
+          'label_values(windows_system_system_up_time, instance)',
           label='Instance',
           refresh='time',
+          sort=1,
         )
       )
       .addRow(
@@ -470,7 +474,7 @@ local g = import 'grafana-builder/grafana.libsonnet';
         )
         .addPanel(
           g.panel('CPU Usage Per Core') +
-          g.queryPanel('sum by (core) (irate(wmi_cpu_time_total{%(wmiExporterSelector)s, mode!="idle", instance="$instance"}[5m]))' % $._config, '{{core}}') +
+          g.queryPanel('sum by (core) (irate(windows_cpu_time_total{%(wmiExporterSelector)s, mode!="idle", instance="$instance"}[5m]))' % $._config, '{{core}}') +
           { yaxes: g.yaxes('percentunit') },
         )
       )
@@ -488,13 +492,13 @@ local g = import 'grafana-builder/grafana.libsonnet';
           .addTarget(prometheus.target(
             |||
               max(
-                wmi_os_visible_memory_bytes{%(wmiExporterSelector)s, instance="$instance"}
-                - wmi_memory_available_bytes{%(wmiExporterSelector)s, instance="$instance"}
+                windows_os_visible_memory_bytes{%(wmiExporterSelector)s, instance="$instance"}
+                - windows_memory_available_bytes{%(wmiExporterSelector)s, instance="$instance"}
               )
             ||| % $._config, legendFormat='memory used'
           ))
           .addTarget(prometheus.target('max(node:windows_node_memory_totalCached_bytes:sum{%(wmiExporterSelector)s, instance="$instance"})' % $._config, legendFormat='memory cached'))
-          .addTarget(prometheus.target('max(wmi_memory_available_bytes{%(wmiExporterSelector)s, instance="$instance"})' % $._config, legendFormat='memory free'))
+          .addTarget(prometheus.target('max(windows_memory_available_bytes{%(wmiExporterSelector)s, instance="$instance"})' % $._config, legendFormat='memory free'))
         )
         .addPanel(
           g.panel('Memory Saturation (Swap I/O) Pages') +
@@ -511,9 +515,9 @@ local g = import 'grafana-builder/grafana.libsonnet';
         )
         .addPanel(
           graphPanel.new('Disk I/O',)
-          .addTarget(prometheus.target('max(rate(wmi_logical_disk_read_bytes_total{%(wmiExporterSelector)s, instance="$instance"}[2m]))' % $._config, legendFormat='read'))
-          .addTarget(prometheus.target('max(rate(wmi_logical_disk_write_bytes_total{%(wmiExporterSelector)s, instance="$instance"}[2m]))' % $._config, legendFormat='written'))
-          .addTarget(prometheus.target('max(rate(wmi_logical_disk_read_seconds_total{%(wmiExporterSelector)s,  instance="$instance"}[2m]) + rate(wmi_logical_disk_write_seconds_total{%(wmiExporterSelector)s,  instance="$instance"}[2m]))' % $._config, legendFormat='io time')) +
+          .addTarget(prometheus.target('max(rate(windows_logical_disk_read_bytes_total{%(wmiExporterSelector)s, instance="$instance"}[2m]))' % $._config, legendFormat='read'))
+          .addTarget(prometheus.target('max(rate(windows_logical_disk_write_bytes_total{%(wmiExporterSelector)s, instance="$instance"}[2m]))' % $._config, legendFormat='written'))
+          .addTarget(prometheus.target('max(rate(windows_logical_disk_read_seconds_total{%(wmiExporterSelector)s,  instance="$instance"}[2m]) + rate(windows_logical_disk_write_seconds_total{%(wmiExporterSelector)s,  instance="$instance"}[2m]))' % $._config, legendFormat='io time')) +
           {
             seriesOverrides: [
               {
@@ -557,6 +561,6 @@ local g = import 'grafana-builder/grafana.libsonnet';
           ) +
           { yaxes: g.yaxes('percentunit') },
         ),
-      ),
+      ) + { refresh: $._config.grafanaK8s.refresh },
   },
 }

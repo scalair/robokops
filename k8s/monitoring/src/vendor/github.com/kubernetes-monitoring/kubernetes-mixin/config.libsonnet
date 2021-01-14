@@ -1,28 +1,35 @@
 {
   _config+:: {
+    SLOs: {
+      apiserver: {
+        days: 30,  // The number of days we alert on burning too much error budget for.
+        target: 0.99,  // The target percentage of availability between 0-1. (0.99 = 99%, 0.999 = 99.9%)
+
+        // Only change these windows when you really understand multi burn rate errors.
+        // Even though you can change the days above (which will change availability calculations)
+        // these windows will alert on a 30 days sliding window. We're looking into basing these windows on the given days too.
+        windows: [
+          { severity: 'critical', 'for': '2m', long: '1h', short: '5m', factor: 14.4 },
+          { severity: 'critical', 'for': '15m', long: '6h', short: '30m', factor: 6 },
+          { severity: 'warning', 'for': '1h', long: '1d', short: '2h', factor: 3 },
+          { severity: 'warning', 'for': '3h', long: '3d', short: '6h', factor: 1 },
+        ],
+      },
+    },
+
     // Selectors are inserted between {} in Prometheus queries.
     cadvisorSelector: 'job="cadvisor"',
     kubeletSelector: 'job="kubelet"',
     kubeStateMetricsSelector: 'job="kube-state-metrics"',
     nodeExporterSelector: 'job="node-exporter"',
-    notKubeDnsCoreDnsSelector: 'job!~"kube-dns|coredns"',
     kubeSchedulerSelector: 'job="kube-scheduler"',
     kubeControllerManagerSelector: 'job="kube-controller-manager"',
     kubeApiserverSelector: 'job="kube-apiserver"',
+    kubeProxySelector: 'job="kube-proxy"',
     podLabel: 'pod',
-    namespaceSelector: null,
-    prefixedNamespaceSelector: if self.namespaceSelector != null then self.namespaceSelector + ',' else '',
     hostNetworkInterfaceSelector: 'device!~"veth.+"',
     hostMountpointSelector: 'mountpoint="/"',
     wmiExporterSelector: 'job="wmi-exporter"',
-
-    // We build alerts for the presence of all these jobs.
-    jobs: {
-      Kubelet: $._config.kubeletSelector,
-      KubeScheduler: $._config.kubeSchedulerSelector,
-      KubeControllerManager: $._config.kubeControllerManagerSelector,
-      KubeAPI: $._config.kubeApiserverSelector,
-    },
 
     // Grafana dashboard IDs are necessary for stable links for dashboards
     grafanaDashboardIDs: {
@@ -44,7 +51,16 @@
       'k8s-windows-node-rsrc-use.json': '96e7484b0bb53b74fbc2bcb7723cd40b',
       'k8s-resources-workloads-namespace.json': 'L29WgMrccBDauPs3Xsti3fwaKjMB6fReufWj6Gl1',
       'k8s-resources-workload.json': 'hZCNbUPfUqjc95N3iumVsaEVHXzaBr3IFKRFvUJf',
+      'apiserver.json': 'eswbt59QCroA3XLdKFvdOHlKB8Iks3h7d2ohstxr',
+      'controller-manager.json': '5g73oHG0pCRz4X1t6gNYouVUv9urrQd4wCdHR2mI',
+      'scheduler.json': '4uMPZ9jmwvYJcM5fcNcNrrt9Sf6ufQL4IKFri2Gp',
+      'proxy.json': 'hhT4orXD1Ott4U1bNNps0R26EHTwMypdcaCjDRPM',
+      'kubelet.json': 'B1azll2ETo7DTiM8CysrH6g4s5NCgkOz6ZdU8Q0j',
     },
+
+    // Support for Grafana 7.2+ `$__rate_interval` instead of `$__interval`
+    grafana72: true,
+    grafanaIntervalVar: if self.grafana72 then '$__rate_interval' else '$__interval',
 
     // Config for the Grafana dashboards in the Kubernetes Mixin
     grafanaK8s: {
@@ -54,36 +70,24 @@
       // For links between grafana dashboards, you need to tell us if your grafana
       // servers under some non-root path.
       linkPrefix: '.',
+
+      // The default refresh time for all dashboards, default to 10s
+      refresh: '10s',
+      minimumTimeInterval: '1m',
     },
-
-    // We alert when the aggregate (CPU, Memory) quota for all namespaces is
-    // greater than the amount of the resources in the cluster.  We do however
-    // allow you to overcommit if you wish.
-    namespaceOvercommitFactor: 1.5,
-    kubeletPodLimit: 110,
-    certExpirationWarningSeconds: 7 * 24 * 3600,
-    certExpirationCriticalSeconds: 1 * 24 * 3600,
-    cpuThrottlingPercent: 25,
-    cpuThrottlingSelector: '',
-    kubeAPILatencyWarningSeconds: 1,
-    kubeAPILatencyCriticalSeconds: 4,
-
-    // We alert when a disk is expected to fill up in four days. Depending on
-    // the data-set it might be useful to change the sampling-time for the
-    // prediction
-    volumeFullPredictionSampleTime: '6h',
-
 
     // Opt-in to multiCluster dashboards by overriding this and the clusterLabel.
     showMultiCluster: false,
     clusterLabel: 'cluster',
+
+    namespaceLabel: 'namespace',
 
     // This list of filesystem is referenced in various expressions.
     fstypes: ['ext[234]', 'btrfs', 'xfs', 'zfs'],
     fstypeSelector: 'fstype=~"%s"' % std.join('|', self.fstypes),
 
     // This list of disk device names is referenced in various expressions.
-    diskDevices: ['nvme.+', 'rbd.+', 'sd.+', 'vd.+', 'xvd.+', 'dm-.+'],
+    diskDevices: ['mmcblk.p.+', 'nvme.+', 'rbd.+', 'sd.+', 'vd.+', 'xvd.+', 'dm-.+', 'dasd.+'],
     diskDeviceSelector: 'device=~"%s"' % std.join('|', self.diskDevices),
   },
 }
