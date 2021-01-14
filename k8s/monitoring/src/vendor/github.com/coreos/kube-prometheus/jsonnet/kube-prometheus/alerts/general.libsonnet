@@ -7,9 +7,9 @@
           {
             alert: 'TargetDown',
             annotations: {
-              message: '{{ $value }}% of the {{ $labels.job }} targets are down.',
+              message: '{{ printf "%.4g" $value }}% of the {{ $labels.job }}/{{ $labels.service }} targets in {{ $labels.namespace }} namespace are down.',
             },
-            expr: '100 * (count(up == 0) BY (job) / count(up) BY (job)) > 10',
+            expr: '100 * (count(up == 0) BY (job, namespace, service) / count(up) BY (job, namespace, service)) > 10',
             'for': '10m',
             labels: {
               severity: 'warning',
