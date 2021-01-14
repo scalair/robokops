@@ -4,12 +4,11 @@
     {
       "source": {
         "git": {
-          "remote": "https://github.com/coreos/kube-prometheus",
+          "remote": "https://github.com/coreos/kube-prometheus.git",
           "subdir": "jsonnet/kube-prometheus"
         }
       },
-      "version": "release-0.1",
-      "name": "kube-prometheus"
+      "version": "release-0.7"
     }
   ],
   "legacyImports": true
