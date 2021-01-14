@@ -35,7 +35,7 @@ features:
   version: 0.4.4
 - name: monitoring
   image: scalair/robokops-monitoring
-  version: 0.5.5
+  version: 0.6.0
 - name: terraform
   image: scalair/robokops-terraform
   version: 0.7.4
