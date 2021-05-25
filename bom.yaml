@@ -8,7 +8,7 @@ features:
   version: 0.5.4
 - name: cluster-autoscaler
   image: scalair/robokops-cluster-autoscaler
-  version: 0.5.3
+  version: 0.5.4
 - name: cluster-init
   image: scalair/robokops-cluster-init
   version: 0.5.3
