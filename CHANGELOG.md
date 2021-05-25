@@ -4,6 +4,10 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 For details about the features changes, you can look at their CHANGELOG.
 
+## 0.10.12 - 2021-05-25
+### Changed
+- Terraform release 0.8.0
+
 ## 0.8.1 - 2020-06-24
 ### Changed
 - Updated fluentd chart
