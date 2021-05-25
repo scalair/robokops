@@ -6,7 +6,7 @@ For details about the features changes, you can look at their CHANGELOG.
 
 ## 0.10.12 - 2021-05-25
 ### Changed
-- Terraform release 0.8.0
+- Terraform release 0.9.1
 
 ## 0.8.1 - 2020-06-24
 ### Changed
