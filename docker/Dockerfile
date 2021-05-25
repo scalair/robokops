@@ -32,7 +32,7 @@ RUN sudo apk update && \
 
 # aws-cli
 RUN sudo apk -Uuv add groff less python3 python3-dev py3-pip build-base && \
-	sudo pip3 install awscli==$AWSCLI_VERSION && \
+	sudo pip3 install awscli==$AWSCLI_VERSION urllib3 && \
 	sudo apk --purge -v del py3-pip && \
 	sudo rm -rf /var/cache/apk/*
 
