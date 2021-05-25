@@ -14,7 +14,7 @@ features:
   version: 0.5.0
 - name: dashboard
   image: scalair/robokops-dashboard
-  version: 0.4.4
+  version: 0.5.0
 - name: elastic-stack
   image: scalair/robokops-elastic-stack
   version: 0.5.6
