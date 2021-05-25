@@ -32,7 +32,7 @@ features:
   version: 0.5.5
 - name: kubewatch
   image: scalair/robokops-kubewatch
-  version: 0.4.6
+  version: 0.4.7
 - name: monitoring
   image: scalair/robokops-monitoring
   version: 0.7.2
