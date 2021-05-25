@@ -7,13 +7,10 @@ ENV TERRAGRUNT_VERSION=0.24.4
 WORKDIR /tmp
 
 # Python3 require to run aws-clean-resources.py
-RUN sudo apk add --no-cache python3 && \
-    if [ ! -e /usr/bin/python ]; then ln -sf python3 /usr/bin/python ; fi && \
+RUN sudo apk add --update --no-cache python3 py3-pip && \
+    sudo ln -sf python3 /usr/bin/python && \
     python3 -m ensurepip && \
-    sudo rm -r /usr/lib/python*/ensurepip && \
-    if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip ; fi && \
-    sudo pip3 install --no-cache --upgrade pip setuptools wheel && \
-    sudo pip3 install boto3
+    sudo pip3 install --no-cache --upgrade pip setuptools wheel boto3
 
 # Terraform
 RUN wget -q https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
