@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.8.0 - 2021-05-25
+### Changed
+- Update Terraform from 0.12.21 to 0.12.31
+- Update Terragrunt from 0.22.5 to 0.24.4
+
 ## 0.7.4 - 2020-12-22
 ### Changed
 - Release 0.7.4

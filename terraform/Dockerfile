@@ -1,8 +1,8 @@
 FROM scalair/robokops-base:0.5.4
 
 # Versions
-ENV TERRAFORM_VERSION=0.12.21
-ENV TERRAGRUNT_VERSION=0.22.5
+ENV TERRAFORM_VERSION=0.12.31
+ENV TERRAGRUNT_VERSION=0.24.4
 
 WORKDIR /tmp
 
@@ -17,14 +17,14 @@ RUN sudo apk add --no-cache python3 && \
 
 # Terraform
 RUN wget -q https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
-	unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
-	sudo mv terraform /usr/local/bin && \
-	rm -f terraform_${TERRAFORM_VERSION}_linux_amd64.zip
+    unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
+    sudo mv terraform /usr/local/bin && \
+    rm -f terraform_${TERRAFORM_VERSION}_linux_amd64.zip
 
 # Terragrunt
 RUN wget -q https://github.com/gruntwork-io/terragrunt/releases/download/v${TERRAGRUNT_VERSION}/terragrunt_linux_amd64 && \
-	sudo mv terragrunt_linux_amd64 /usr/local/bin/terragrunt && \
-	sudo chmod +x /usr/local/bin/terragrunt
+    sudo mv terragrunt_linux_amd64 /usr/local/bin/terragrunt && \
+    sudo chmod +x /usr/local/bin/terragrunt
 
 # Keybase
 RUN echo "http://dl-5.alpinelinux.org/alpine/edge/testing" | sudo tee -a /etc/apk/repositories && \
