@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.4 - 2021-05-25
+### Fixed
+ - aws cli error
+
 ## 0.6.3 - 2021-05-25
 ### Fixed
  - urllib3 missing
