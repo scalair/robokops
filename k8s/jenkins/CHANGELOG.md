@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.2 - 2021-05-25
+### Changed
+- Release 0.5.2
+
 ## 0.5.1 - 2021-05-25
 ### Changed
 - Release 0.5.1
