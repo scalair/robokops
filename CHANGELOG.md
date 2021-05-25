@@ -4,6 +4,10 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 For details about the features changes, you can look at their CHANGELOG.
 
+## 0.10.13 - 2021-05-25
+### Changed
+- Base release to fix python installation
+
 ## 0.10.12 - 2021-05-25
 ### Changed
 - Terraform release 0.9.1

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.2 - 2021-05-25
+### Fixed
+ - Python3 missing
+
 ## 0.6.0 - 2021-05-25
 ### Changed
  - Update alpine and kubectl versions
