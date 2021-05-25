@@ -32,13 +32,13 @@ features:
   version: 0.5.2
 - name: kubewatch
   image: scalair/robokops-kubewatch
-  version: 0.4.5
+  version: 0.4.6
 - name: monitoring
   image: scalair/robokops-monitoring
-  version: 0.7.1
+  version: 0.7.2
 - name: terraform
   image: scalair/robokops-terraform
-  version: 0.9.2
+  version: 0.9.3
 - name: vault
   image: scalair/robokops-vault
   version: 0.5.1
