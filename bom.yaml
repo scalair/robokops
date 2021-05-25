@@ -41,7 +41,7 @@ features:
   version: 0.9.6
 - name: vault
   image: scalair/robokops-vault
-  version: 0.5.4
+  version: 0.5.5
 - name: velero
   image: scalair/robokops-velero
   version: 0.5.4
