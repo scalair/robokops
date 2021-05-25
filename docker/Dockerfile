@@ -31,7 +31,7 @@ RUN sudo apk update && \
 	sudo apk add bash curl ca-certificates unzip git expect tini apache2-utils bison flex gettext
 
 # aws-cli
-RUN sudo apk -Uuv add groff less python python-dev py-pip build-base && \
+RUN sudo apk -Uuv add groff less python2 python2-dev py-pip build-base && \
 	sudo pip install awscli==$AWSCLI_VERSION && \
 	sudo apk --purge -v del py-pip && \
 	sudo rm -rf /var/cache/apk/*
@@ -43,12 +43,12 @@ RUN sudo wget -q https://amazon-eks.s3-us-west-2.amazonaws.com/${AWS_IAM_AUTHENT
 # gcloud
 ENV PATH /google-cloud-sdk/bin:$PATH
 RUN curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${GCLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
-    tar xzf google-cloud-sdk-${GCLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
+	tar xzf google-cloud-sdk-${GCLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
 	sudo mv google-cloud-sdk / && \
-    rm google-cloud-sdk-${GCLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
-    gcloud config set core/disable_usage_reporting true && \
-    gcloud config set component_manager/disable_update_check true && \
-    gcloud config set metrics/environment github_docker_image
+	rm google-cloud-sdk-${GCLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
+	gcloud config set core/disable_usage_reporting true && \
+	gcloud config set component_manager/disable_update_check true && \
+	gcloud config set metrics/environment github_docker_image
 
 # kubectl
 RUN sudo wget -q https://storage.googleapis.com/kubernetes-release/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl -O /usr/local/bin/kubectl && \
@@ -69,7 +69,7 @@ RUN sudo wget -q https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${V
 
 # yq
 RUN sudo curl -L https://github.com/mikefarah/yq/releases/download/2.4.1/yq_linux_amd64 -o /usr/bin/yq && \
-    sudo chmod +x /usr/bin/yq
+	sudo chmod +x /usr/bin/yq
 
 # boxes (https://boxes.thomasjensen.com/)
 RUN sudo wget -q https://github.com/ascii-boxes/boxes/archive/v1.3.zip -O boxes-1.3.zip && \
