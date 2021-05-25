@@ -1,4 +1,4 @@
-FROM scalair/robokops-base:0.6.5
+FROM scalair/robokops-base:0.6.6
 
 # jsonnet
 RUN go get github.com/google/go-jsonnet/cmd/jsonnet
