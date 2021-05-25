@@ -1,8 +1,8 @@
 # Changelog
 
-## 0.5.4 - 2020-12-22
-### Fixed
- - Update Helm to fix repo issue
+## 0.6.0 - 2021-05-25
+### Changed
+ - Update alpine and kubectl versions
 
 ## 0.5.3 - 2020-12-22
 ### Fixed
