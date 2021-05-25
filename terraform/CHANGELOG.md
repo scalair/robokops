@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.9.0 - 2021-05-25
+### Changed
+- Release 0.9.0
+
 ## 0.8.0 - 2021-05-25
 ### Changed
 - Update Terraform from 0.12.21 to 0.12.31
