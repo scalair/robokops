@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.9.0 - 2021-05-25
+## 0.9.1 - 2021-05-25
 ### Fixed
 - pip installation
 
