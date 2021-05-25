@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.6 - 2021-05-25
+### Fixed
+ - dockerfile dependencies issues
+
 ## 0.6.4 - 2021-05-25
 ### Fixed
  - aws cli error
