@@ -1,4 +1,4 @@
-FROM golang:alpine3.13
+FROM golang:alpine3.12
 
 # https://pypi.org/project/awscli/
 ENV AWSCLI_VERSION=1.17.0
