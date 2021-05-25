@@ -31,7 +31,7 @@ RUN sudo apk update && \
 	sudo apk add bash curl ca-certificates unzip git expect tini apache2-utils bison flex gettext
 
 # aws-cli
-RUN sudo apk -Uuv add groff less python python-dev py-pip build-base && \
+RUN sudo apk -Uuv add groff less python2 python2-dev py-pip build-base && \
 	sudo pip install awscli==$AWSCLI_VERSION && \
 	sudo apk --purge -v del py-pip && \
 	sudo rm -rf /var/cache/apk/*
