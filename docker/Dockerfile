@@ -1,4 +1,4 @@
-FROM golang:alpine3.12
+FROM golang:alpine3.13
 
 # https://pypi.org/project/awscli/
 ENV AWSCLI_VERSION=1.17.0
@@ -28,13 +28,14 @@ RUN sudo ln -sf /usr/share/zoneinfo/Etc/UTC /etc/localtime
 
 # Install base and dev packages
 RUN sudo apk update && \
-	sudo apk add bash curl ca-certificates unzip git expect tini apache2-utils bison flex gettext
+	sudo apk -Uuv add groff less bash curl ca-certificates unzip git expect tini apache2-utils bison flex gettext build-base
 
 # aws-cli
-RUN sudo apk -Uuv add groff less python2 python2-dev py-pip python3 build-base && \
-	sudo pip install awscli==$AWSCLI_VERSION && \
-	sudo apk --purge -v del py-pip && \
-	sudo rm -rf /var/cache/apk/*
+RUN sudo apk add python3 curl && \
+	sudo ln -sf python3 /usr/bin/python && \
+	sudo curl "https://s3.amazonaws.com/aws-cli/awscli-bundle-$AWSCLI_VERSION.zip" -o "awscli-bundle.zip" && \
+	sudo unzip awscli-bundle.zip && \
+	sudo ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
 
 # aws-iam-authenticator
 RUN sudo wget -q https://amazon-eks.s3-us-west-2.amazonaws.com/${AWS_IAM_AUTHENTICATOR}/2019-06-11/bin/linux/amd64/aws-iam-authenticator -O /usr/local/bin/aws-iam-authenticator && \
@@ -74,7 +75,7 @@ RUN sudo curl -L https://github.com/mikefarah/yq/releases/download/2.4.1/yq_linu
 # boxes (https://boxes.thomasjensen.com/)
 RUN sudo wget -q https://github.com/ascii-boxes/boxes/archive/v1.3.zip -O boxes-1.3.zip && \
 	sudo unzip -q boxes-1.3.zip && \
-	sudo make -C boxes-1.3 -s 2>/dev/null 1>/dev/null || true && \
+	sudo make -C boxes-1.3 && \
 	sudo cp boxes-1.3/src/boxes /usr/local/bin && \
 	sudo cp boxes-1.3/boxes-config /usr/share/boxes && \
 	sudo rm -rf boxes-1.3 boxes-1.3.zip
