@@ -2,7 +2,7 @@ version: 0.9.1
 features:
 - name: aws-alb-ingress-controller
   image: scalair/robokops-aws-alb-ingress-controller
-  version: 0.5.1
+  version: 0.5.2
 - name: aws-efs-csi-driver
   image: scalair/robokops-aws-efs-csi-driver
   version: 0.5.1
