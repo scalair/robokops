@@ -1,4 +1,4 @@
-FROM golang:alpine3.12
+FROM golang:alpine3.13
 
 # https://pypi.org/project/awscli/
 ENV AWSCLI_VERSION=1.17.0
@@ -31,10 +31,9 @@ RUN sudo apk update && \
 	sudo apk add bash curl ca-certificates unzip git expect tini apache2-utils bison flex gettext
 
 # aws-cli
-RUN sudo apk add --update --no-cache add groff less python3 py3-pip python3-dev build-base && \
-	sudo ln -sf python3 /usr/bin/python && \
-	python3 -m ensurepip && \
-	sudo pip3 install --no-cache --upgrade pip awscli==$AWSCLI_VERSION && \
+RUN sudo apk -Uuv add groff less python2 python2-dev py-pip build-base && \
+	sudo pip install awscli==$AWSCLI_VERSION && \
+	sudo apk --purge -v del py-pip && \
 	sudo rm -rf /var/cache/apk/*
 
 # aws-iam-authenticator
